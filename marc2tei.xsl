@@ -43,7 +43,8 @@
       <xsl:variable name="code" select="substring(marc:leader, 8, 1)"/>
       <xsl:choose>
         <xsl:when test="$code = 'a'">analytic</xsl:when>
-        <xsl:otherwise>monogr</xsl:otherwise>
+        <xsl:when test="$code = 'm'">monogr</xsl:when>
+        <xsl:otherwise>unknown</xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
     <xsl:element name="{$level}">
