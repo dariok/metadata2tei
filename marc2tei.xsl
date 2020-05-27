@@ -48,7 +48,31 @@
       </xsl:choose>
     </xsl:variable>
     <xsl:element name="{$level}">
-      
+      <xsl:apply-templates select="marc:datafield[@tag = '100']" />
+    </xsl:element>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>
+      <xd:p>Create an author, editor or respStmt element depending on the value of the “function” subfield. Uses the
+        content of $e as element name in case an unknown value is encountered so these cases can be caught by schema
+        validation.</xd:p>
+      <xd:p>MARC fields 100 (personal name) and are used.</xd:p>
+      <xd:p>TODO: provide a longer list of values to take care of different languages</xd:p>
+    </xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = '100']">
+    <xsl:variable name="name">
+      <xsl:choose>
+        <xsl:when test="marc:subfield[@code = 'e'] = ('Editor', 'Bearbeiter')">editor</xsl:when>
+        <xsl:when test="not(marc:subfield[@code = 'e'])">author</xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="translate(marc:subfield[@code = 'e'], ' ', '_')"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:element name="{$name}">
+      <xsl:apply-templates select="marc:subfield[@code = 'a']" />
     </xsl:element>
   </xsl:template>
   
