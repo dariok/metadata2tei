@@ -59,6 +59,8 @@
       <xsl:apply-templates select="marc:datafield[@tag = '041']" />
       <!-- ID of this record -->
       <xsl:apply-templates select="marc:controlfield[@tag = '001']" />
+      <!-- edition -->
+      <xsl:apply-templates select="marc:datafield[@tag = '250']" />
     </xsl:element>
   </xsl:template>
   
@@ -138,6 +140,17 @@
       </xsl:attribute>
       <xsl:value-of select="."/>
     </idno>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>
+      <xd:p>Information about the edition</xd:p>
+    </xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = '250']">
+    <edition>
+      <xsl:apply-templates select="marc:subfield[@code = 'a']" />
+    </edition>
   </xsl:template>
   
   <xd:doc>
