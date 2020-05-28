@@ -55,6 +55,8 @@
       <xsl:apply-templates select="marc:datafield[@tag = '245']/*" />
       <!-- additinal responsibility statements (e.g. works of an author in 100, edited by someone -->
       <xsl:apply-templates select="marc:datafield[@tag = '700']" />
+      <!-- language(s) -->
+      <xsl:apply-templates select="marc:datafield[@tag = '041']" />
       <!-- ID of this record -->
       <xsl:apply-templates select="marc:controlfield[@tag = '001']" />
     </xsl:element>
@@ -106,6 +108,20 @@
       </xsl:attribute>
       <xsl:apply-templates />
     </title>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>
+      <xd:p>create one textLang combining the entries in MARC 041</xd:p>
+    </xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = '041']">
+    <textLang mainLang="{string(marc:subfield[@code = 'a'][1])}">
+      <xsl:if test="count(marc:subfield[@code = 'a']) gt 1">
+        <xsl:attribute name="otherLangs"
+          select="string-join(marc:subfield[@code = 'a' and preceding-sibling::*[@code = 'a']], ' ')" />
+      </xsl:if>
+    </textLang>
   </xsl:template>
   
   <xd:doc>
