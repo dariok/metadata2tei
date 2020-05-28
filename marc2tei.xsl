@@ -3,6 +3,7 @@
   xmlns:tei="http://www.tei-c.org/ns/1.0"
   xmlns:marc="http://www.loc.gov/MARC21/slim"
 	xmlns:xd="http://www.oxygenxml.com/ns/doc/xsl"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns="http://www.tei-c.org/ns/1.0"
   exclude-result-prefixes="#all"
   version="3.0">
@@ -72,6 +73,11 @@
       </xsl:choose>
     </xsl:variable>
     <xsl:element name="{$name}">
+      <xsl:attribute name="ref">
+        <xsl:call-template name="attRef">
+          <xsl:with-param name="fields" select="marc:subfield[@code = '0']" />
+        </xsl:call-template>
+      </xsl:attribute>
       <xsl:apply-templates select="marc:subfield[@code = 'a']" />
     </xsl:element>
   </xsl:template>
@@ -81,6 +87,63 @@
   </xd:doc>
   <xsl:template match="marc:datafield">
     <xsl:text>[unhandled data field]</xsl:text>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>
+      <xd:p>Create a URI in the form of {authority}:{identifier} for use in @ref</xd:p>
+    </xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:subfield" mode="ref" as="xs:string">
+    <xsl:variable name="value">
+      <xsl:analyze-string select="." regex="\(([^\)]+)\)(.+)">
+        <xsl:matching-substring>
+          <xsl:call-template name="auth">
+            <xsl:with-param name="code" select="regex-group(1)" />
+          </xsl:call-template>
+          <xsl:text>:</xsl:text>
+          <xsl:value-of select="regex-group(2)"/>
+        </xsl:matching-substring>
+      </xsl:analyze-string>
+    </xsl:variable>
+    <xsl:value-of select="normalize-space($value)"/>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>
+      <xd:p>Create the value for attribute @ref based on the information in the marc:subfields.</xd:p>
+      <xd:p><xd:b>May be overwritten by importing stylesheets</xd:b> to use their own selection mechanism when multiple
+        subfields are present.</xd:p>
+    </xd:desc>
+    <xd:param name="fields">
+      <xd:p>The subfields to be evaluated.</xd:p>
+    </xd:param>
+  </xd:doc>
+  <xsl:template name="attRef">
+    <xsl:param name="fields" />
+    <xsl:variable name="refs" as="xs:string+">
+      <xsl:apply-templates select="$fields" mode="ref" />
+    </xsl:variable>
+    <!-- TODO: evaluate MARC field to use a different “prefix” -->
+    <xsl:value-of select="'per:' || ($refs[starts-with(., 'gnd')], $refs)[1]"/>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>
+      <xd:p>Create a short form of and authority based on some form of identifier.</xd:p>
+      <xd:p>Here, German ISIL are used and a few others. <xd:b>May be overwritten by importing stylesheets.</xd:b></xd:p>
+    </xd:desc>
+    <xd:param name="code">
+      <xd:p>The code to be evaluated</xd:p>
+    </xd:param>
+  </xd:doc>
+  <xsl:template name="auth">
+    <xsl:param name="code" />
+    <xsl:choose>
+      <xsl:when test="$code='DE-588'">gnd</xsl:when>
+      <xsl:when test="$code='DE-603'">hebis</xsl:when>
+      <xsl:otherwise>???</xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
   
   <xd:doc>
