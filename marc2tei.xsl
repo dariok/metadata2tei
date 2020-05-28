@@ -70,10 +70,10 @@
   <xsl:template match="marc:datafield[@tag = ('100', '700')]">
     <xsl:variable name="name">
       <xsl:choose>
-        <xsl:when test="marc:subfield[@code = 'e'] = ('Editor', 'Bearbeiter')">editor</xsl:when>
-        <xsl:when test="not(marc:subfield[@code = 'e'])">author</xsl:when>
+        <xsl:when test="marc:subfield[@code = '4'] = ('edt')">editor</xsl:when>
+        <xsl:when test="not(marc:subfield[@code = '4'])">author</xsl:when>
         <xsl:otherwise>
-          <xsl:value-of select="translate(marc:subfield[@code = 'e'], ' ', '_')"/>
+          <xsl:value-of select="translate(marc:subfield[@code = '4'], ' ', '_')"/>
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
