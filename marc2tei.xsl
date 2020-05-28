@@ -55,6 +55,8 @@
       <xsl:apply-templates select="marc:datafield[@tag = '245']/*" />
       <!-- additinal responsibility statements (e.g. works of an author in 100, edited by someone -->
       <xsl:apply-templates select="marc:datafield[@tag = '700']" />
+      <!-- ID of this record -->
+      <xsl:apply-templates select="marc:controlfield[@tag = '001']" />
     </xsl:element>
   </xsl:template>
   
@@ -104,6 +106,22 @@
       </xsl:attribute>
       <xsl:apply-templates />
     </title>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>
+      <xd:p>Create an idno for the record.</xd:p>
+    </xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:controlfield[@tag = '001']">
+    <idno>
+      <xsl:attribute name="type">
+        <xsl:call-template name="auth">
+          <xsl:with-param name="code" select="parent::*/marc:controlfield[@tag = '003']" />
+        </xsl:call-template>
+      </xsl:attribute>
+      <xsl:value-of select="."/>
+    </idno>
   </xsl:template>
   
   <xd:doc>
