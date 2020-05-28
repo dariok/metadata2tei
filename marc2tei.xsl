@@ -49,7 +49,10 @@
       </xsl:choose>
     </xsl:variable>
     <xsl:element name="{$level}">
+      <!-- author, editor, respStmt -->
       <xsl:apply-templates select="marc:datafield[@tag = '100']" />
+      <!-- title -->
+      <xsl:apply-templates select="marc:datafield[@tag = '245']/*" />
     </xsl:element>
   </xsl:template>
   
@@ -80,6 +83,25 @@
       </xsl:attribute>
       <xsl:apply-templates select="marc:subfield[@code = 'a']" />
     </xsl:element>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>
+      <xd:p>Create a title from a MARC 245 field.</xd:p>
+    </xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = '245']/marc:subfield">
+    <title>
+      <xsl:attribute name="type">
+        <xsl:choose>
+          <xsl:when test="@code = 'a'">main</xsl:when>
+          <xsl:when test="@code = 'b'">sub</xsl:when>
+          <xsl:when test="@code = 'c'">resp</xsl:when>
+          <xsl:otherwise>other</xsl:otherwise>
+        </xsl:choose>
+      </xsl:attribute>
+      <xsl:apply-templates />
+    </title>
   </xsl:template>
   
   <xd:doc>
