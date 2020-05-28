@@ -53,6 +53,8 @@
       <xsl:apply-templates select="marc:datafield[@tag = '100']" />
       <!-- title -->
       <xsl:apply-templates select="marc:datafield[@tag = '245']/*" />
+      <!-- additinal responsibility statements (e.g. works of an author in 100, edited by someone -->
+      <xsl:apply-templates select="marc:datafield[@tag = '700']" />
     </xsl:element>
   </xsl:template>
   
@@ -65,7 +67,7 @@
       <xd:p>TODO: provide a longer list of values to take care of different languages</xd:p>
     </xd:desc>
   </xd:doc>
-  <xsl:template match="marc:datafield[@tag = '100']">
+  <xsl:template match="marc:datafield[@tag = ('100', '700')]">
     <xsl:variable name="name">
       <xsl:choose>
         <xsl:when test="marc:subfield[@code = 'e'] = ('Editor', 'Bearbeiter')">editor</xsl:when>
