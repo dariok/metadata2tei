@@ -92,7 +92,8 @@
       <!-- language(s) -->
       <xsl:apply-templates select="marc:datafield[@tag = '041']" />
       <!-- ID of this record -->
-      <xsl:apply-templates select="marc:controlfield[@tag = '001']" />
+      <xsl:apply-templates select="marc:controlfield[@tag = '001']
+        | marc:datafield[@tag = '015']" />
       <!-- edition -->
       <xsl:apply-templates select="marc:datafield[@tag = '250']" />
       <!-- imprint -->
@@ -101,7 +102,7 @@
       <xsl:apply-templates select="marc:datafield[@tag = '300']/*" />
       <!-- TODO series from 760 and 762 -->
       <xsl:apply-templates select="marc:datafield[not(@tag
-        = ('001', '035', '040', '041', '084', '100', '245', '250', '260', '264', '300', '700','924'))]" />
+        = ('001', '015', '035', '040', '041', '084', '100', '245', '250', '260', '264', '300', '700','924'))]" />
     </xsl:element>
   </xsl:template>
   
@@ -180,6 +181,15 @@
         </xsl:call-template>
       </xsl:attribute>
       <xsl:value-of select="."/>
+    </idno>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>Crete an idno from MARC 015 (number in national bilbiography)</xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = '015']">
+    <idno type="{marc:subfield[@code = '2']}">
+      <xsl:value-of select="marc:subfield[@code = 'a']"/>
     </idno>
   </xsl:template>
   
