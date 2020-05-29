@@ -65,6 +65,8 @@
       <xsl:apply-templates select="marc:datafield[@tag = ('260', '264')]" />
       <!-- extent -->
       <xsl:apply-templates select="marc:datafield[@tag = '300']/*" />
+      <xsl:apply-templates select="marc:datafield[not(@tag
+        = ('001', '035', '040', '041', '084', '100', '245', '250', '260', '264', '300', '700','924'))]" />
     </xsl:element>
   </xsl:template>
   
@@ -204,7 +206,9 @@
     <xd:desc>Fallback template for all unhandled marc:datafield</xd:desc>
   </xd:doc>
   <xsl:template match="marc:datafield">
-    <xsl:text>[unhandled data field]</xsl:text>
+    <xsl:text>[unhandled data field: </xsl:text>
+    <xsl:value-of select="@tag"/>
+    <xsl:text>] </xsl:text>
   </xsl:template>
   
   <xd:doc>
