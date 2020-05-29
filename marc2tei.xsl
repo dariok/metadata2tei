@@ -95,14 +95,17 @@
       <xsl:apply-templates select="marc:controlfield[@tag = '001']
         | marc:datafield[@tag = ('015', '016')]" />
       <!-- edition -->
-      <xsl:apply-templates select="marc:datafield[@tag = '250']" />
+      <xsl:apply-templates select="marc:datafield[@tag = ('250', '502')]" />
       <!-- imprint -->
       <xsl:apply-templates select="marc:datafield[@tag = ('260', '264')]" />
       <!-- extent -->
       <xsl:apply-templates select="marc:datafield[@tag = '300']/*" />
       <!-- TODO series from 760 and 762 -->
+      <!-- TODO put 6xx into a note? ref won’t work for full text only cases like possibly 655 and keywords is not
+        available in any possibly descendant of biblStruct -->
       <xsl:apply-templates select="marc:datafield[not(@tag
-        = ('001', '015', '016', '035', '040', '041', '084', '100', '245', '250', '260', '264', '300', '700','924'))]" />
+        = ('001', '015', '016', '035', '040', '041', '084', '100', '245', '250', '260', '264', '300', '502', '600',
+          '655', '700','924'))]" />
     </xsl:element>
   </xsl:template>
   
@@ -214,10 +217,10 @@
   
   <xd:doc>
     <xd:desc>
-      <xd:p>Information about the edition</xd:p>
+      <xd:p>Information about the edition, created from MARC 205 (edition) or 502 (dissertation)</xd:p>
     </xd:desc>
   </xd:doc>
-  <xsl:template match="marc:datafield[@tag = '250']">
+  <xsl:template match="marc:datafield[@tag = ('250', 502)]">
     <edition>
       <xsl:apply-templates select="marc:subfield[@code = 'a']" />
     </edition>
