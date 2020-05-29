@@ -202,7 +202,7 @@
         <xsl:choose>
           <xsl:when test="@ind1 = '7'">
             <xsl:call-template name="auth">
-              <xsl:with-param name="code" select="marc:subfiels[@code = '2']/text()" />
+              <xsl:with-param name="code" select="marc:subfield[@code = '2']" />
             </xsl:call-template>
           </xsl:when>
           <xsl:otherwise>LAC</xsl:otherwise>
