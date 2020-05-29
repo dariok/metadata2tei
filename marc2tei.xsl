@@ -93,7 +93,7 @@
       <xsl:apply-templates select="marc:datafield[@tag = '041']" />
       <!-- ID of this record -->
       <xsl:apply-templates select="marc:controlfield[@tag = '001']
-        | marc:datafield[@tag = '015']" />
+        | marc:datafield[@tag = ('015', '016')]" />
       <!-- edition -->
       <xsl:apply-templates select="marc:datafield[@tag = '250']" />
       <!-- imprint -->
@@ -102,7 +102,7 @@
       <xsl:apply-templates select="marc:datafield[@tag = '300']/*" />
       <!-- TODO series from 760 and 762 -->
       <xsl:apply-templates select="marc:datafield[not(@tag
-        = ('001', '015', '035', '040', '041', '084', '100', '245', '250', '260', '264', '300', '700','924'))]" />
+        = ('001', '015', '016', '035', '040', '041', '084', '100', '245', '250', '260', '264', '300', '700','924'))]" />
     </xsl:element>
   </xsl:template>
   
@@ -188,7 +188,26 @@
     <xd:desc>Crete an idno from MARC 015 (number in national bilbiography)</xd:desc>
   </xd:doc>
   <xsl:template match="marc:datafield[@tag = '015']">
-    <idno type="{marc:subfield[@code = '2']}">
+    <idno type="national_bibliography" subtype="{marc:subfield[@code = '2']}">
+      <xsl:value-of select="marc:subfield[@code = 'a']"/>
+    </idno>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>Crete an idno from MARC 016 (controlnumber in national library)</xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = '016']">
+    <idno>
+      <xsl:attribute name="type">
+        <xsl:choose>
+          <xsl:when test="@ind1 = '7'">
+            <xsl:call-template name="auth">
+              <xsl:with-param name="code" select="marc:subfiels[@code = '2']/text()" />
+            </xsl:call-template>
+          </xsl:when>
+          <xsl:otherwise>LAC</xsl:otherwise>
+        </xsl:choose>
+      </xsl:attribute>
       <xsl:value-of select="marc:subfield[@code = 'a']"/>
     </idno>
   </xsl:template>
@@ -307,6 +326,7 @@
   <xsl:template name="auth">
     <xsl:param name="code" />
     <xsl:choose>
+      <xsl:when test="$code='DE-101'">dnb</xsl:when>
       <xsl:when test="$code='DE-588'">gnd</xsl:when>
       <xsl:when test="$code='DE-603'">hebis</xsl:when>
       <xsl:otherwise>???</xsl:otherwise>
