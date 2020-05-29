@@ -33,10 +33,44 @@
   
   <xd:doc>
     <xd:desc>
-      <xd:p>Create the main container for title data. Depending on the type specified in the leader (position 7,
+      <xd:p>Entry point for biblStruct.</xd:p>
+    </xd:desc>
+    <xd:param name="id">
+      <xd:p>If an @xml:id should be set, if can be provided with this param</xd:p>
+    </xd:param>
+  </xd:doc>
+  <xsl:template match="marc:record" mode="biblStruct">
+    <xsl:param name="id" />
+    <biblStruct>
+      <xsl:if test="$id">
+        <xsl:attribute name="xml:id" select="$id" />
+      </xsl:if>
+      <xsl:apply-templates select="." mode="struct" />
+    </biblStruct>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>
+      <xd:p>Entry point for biblStruct.</xd:p>
+    </xd:desc>
+    <xd:param name="id">
+      <xd:p>If an @xml:id should be set, if can be provided with this param</xd:p>
+    </xd:param>
+  </xd:doc>
+  <xsl:template match="marc:record" mode="biblFull">
+    <xsl:param name="id" />
+    <biblFull>
+      <xsl:if test="$id">
+        <xsl:attribute name="xml:id" select="$id" />
+      </xsl:if>
+      <xsl:apply-templates select="." mode="struct" />
+    </biblFull>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>
+      <xd:p>Create the contents of a biblStruct. Depending on the type specified in the leader (position 7,
         zero-based), we create analytic or monogr.</xd:p>
-      <xd:p>As a biblStruct with analytic also needs a monogr, both of which will be created from a marc:record,
-        we cannot create a biblStruct here.</xd:p>
     </xd:desc>
   </xd:doc>
   <xsl:template match="marc:record">
