@@ -99,6 +99,7 @@
       <xsl:apply-templates select="marc:datafield[@tag = ('260', '264')]" />
       <!-- extent -->
       <xsl:apply-templates select="marc:datafield[@tag = '300']/*" />
+      <!-- TODO series from 760 and 762 -->
       <xsl:apply-templates select="marc:datafield[not(@tag
         = ('001', '035', '040', '041', '084', '100', '245', '250', '260', '264', '300', '700','924'))]" />
     </xsl:element>
