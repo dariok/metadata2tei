@@ -61,6 +61,8 @@
       <xsl:apply-templates select="marc:controlfield[@tag = '001']" />
       <!-- edition -->
       <xsl:apply-templates select="marc:datafield[@tag = '250']" />
+      <!-- imprint -->
+      <xsl:apply-templates select="marc:datafield[@tag = ('260', '264')]" />
     </xsl:element>
   </xsl:template>
   
@@ -151,6 +153,37 @@
     <edition>
       <xsl:apply-templates select="marc:subfield[@code = 'a']" />
     </edition>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>
+      <xd:p>Create the imprint from 260 or 264.</xd:p>
+    </xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = ('260', '264')]">
+    <imprint>
+      <xsl:apply-templates select="marc:subfield[@code = 'a']" />
+      <xsl:apply-templates select="marc:subfield[@code = 'b']" />
+      <xsl:apply-templates select="marc:subfield[@code = 'c']" />
+    </imprint>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>
+      <xd:p>Create imprint’s contents from MARC 260 or 264 subfields.</xd:p>
+    </xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = ('260', '264')]/marc:subfield">
+    <xsl:variable name="name">
+      <xsl:choose>
+        <xsl:when test="@code = 'a'">pubPlace</xsl:when>
+        <xsl:when test="@code = 'b'">publisher</xsl:when>
+        <xsl:when test="@code = 'c'">date</xsl:when>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:element name="{$name}">
+      <xsl:apply-templates />
+    </xsl:element>
   </xsl:template>
   
   <xd:doc>
