@@ -63,6 +63,8 @@
       <xsl:apply-templates select="marc:datafield[@tag = '250']" />
       <!-- imprint -->
       <xsl:apply-templates select="marc:datafield[@tag = ('260', '264')]" />
+      <!-- extent -->
+      <xsl:apply-templates select="marc:datafield[@tag = '300']/*" />
     </xsl:element>
   </xsl:template>
   
@@ -184,6 +186,18 @@
     <xsl:element name="{$name}">
       <xsl:apply-templates />
     </xsl:element>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>
+      <xd:p>Create multiple extent from the data in 300</xd:p>
+    </xd:desc>
+  </xd:doc>
+  <!-- TODO try to parse info in specific subfields, esp. dimensions in $c -->
+  <xsl:template match="marc:datafield[@tag = '300']/marc:subfield">
+    <extent>
+      <xsl:apply-templates />
+    </extent>
   </xsl:template>
   
   <xd:doc>
