@@ -46,6 +46,7 @@
         <xsl:attribute name="xml:id" select="$id" />
       </xsl:if>
       <xsl:apply-templates select="." mode="struct" />
+      <xsl:apply-templates select="marc:datafield[@tag = '490']" />
     </biblStruct>
   </xsl:template>
   
@@ -63,7 +64,6 @@
       <xsl:if test="$id">
         <xsl:attribute name="xml:id" select="$id" />
       </xsl:if>
-      <xsl:apply-templates select="." mode="struct" />
     </biblFull>
   </xsl:template>
   
@@ -94,6 +94,8 @@
       <!-- ID of this record -->
       <xsl:apply-templates select="marc:controlfield[@tag = '001']
         | marc:datafield[@tag = ('015', '016', '020')]" />
+      <!-- notes -->
+      <xsl:apply-templates select="marc:datafield[@tag = ('500')]" />
       <!-- edition -->
       <xsl:apply-templates select="marc:datafield[@tag = ('250', '502')]" />
       <!-- imprint -->
@@ -105,7 +107,7 @@
         available in any possibly descendant of biblStruct -->
       <xsl:apply-templates select="marc:datafield[not(@tag
         = ('001', '015', '016', '020', '035', '040', '041', '043', '084', '100', '245', '250', '260', '264', '300',
-          '502', '600', '655', '700','924'))]" />
+          '490', '500', '502', '600', '655', '700','924'))]" />
     </xsl:element>
   </xsl:template>
   
@@ -268,6 +270,17 @@
   
   <xd:doc>
     <xd:desc>
+      <xd:p>Create a seires element for each MARC 490</xd:p>
+    </xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = '490']">
+    <series>
+      <xsl:apply-templates />
+    </series>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>
       <xd:p>Create multiple extent from the data in 300</xd:p>
     </xd:desc>
   </xd:doc>
@@ -276,6 +289,18 @@
     <extent>
       <xsl:apply-templates />
     </extent>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>
+      <xd:p>Create tei:note from MARC 500</xd:p>
+    </xd:desc>
+  </xd:doc>
+  <!-- TODO try to parse info in specific subfields, esp. dimensions in $c -->
+  <xsl:template match="marc:datafield[@tag = '500']">
+    <note>
+      <xsl:apply-templates select="marc:subfield" />
+    </note>
   </xsl:template>
   
   <xd:doc>
