@@ -79,7 +79,7 @@
       <xsl:choose>
         <xsl:when test="$code = 'a'">analytic</xsl:when>
         <xsl:when test="$code = 'm'">monogr</xsl:when>
-        <xsl:when test="$code = 's'">series</xsl:when>
+        <xsl:when test="$code = 's'">monogr</xsl:when>
         <xsl:otherwise>unknown</xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
