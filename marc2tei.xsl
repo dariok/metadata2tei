@@ -107,8 +107,9 @@
         available in any possibly descendant of biblStruct -->
       <xsl:apply-templates select="marc:datafield[not(@tag
         = ('001', '015', '016', '020', '035', '040', '041', '043', '084', '100', '245', '250', '260', '264', '300',
-          '490', '500', '502', '600', '655', '700','924'))]" />
+          '490', '500', '502', '600', '655', '700', '810', '924'))]" />
     </xsl:element>
+    <xsl:apply-templates select="marc:datafield[@tag = ('810')]" />
   </xsl:template>
   
   <xd:doc>
@@ -131,11 +132,7 @@
       </xsl:choose>
     </xsl:variable>
     <xsl:element name="{$name}">
-      <xsl:attribute name="ref">
-        <xsl:call-template name="attRef">
-          <xsl:with-param name="fields" select="marc:subfield[@code = '0']" />
-        </xsl:call-template>
-      </xsl:attribute>
+      <xsl:apply-templates select="marc:subfield[@code = '0']" />
       <xsl:apply-templates select="marc:subfield[@code = 'a']" />
     </xsl:element>
   </xsl:template>
@@ -181,9 +178,7 @@
   <xsl:template match="marc:controlfield[@tag = '001']">
     <idno>
       <xsl:attribute name="type">
-        <xsl:call-template name="auth">
-          <xsl:with-param name="code" select="parent::*/marc:controlfield[@tag = '003']" />
-        </xsl:call-template>
+        <xsl:value-of select="parent::*/marc:controlfield[@tag = '003']" />
       </xsl:attribute>
       <xsl:value-of select="."/>
     </idno>
@@ -204,14 +199,7 @@
   <xsl:template match="marc:datafield[@tag = '016']">
     <idno>
       <xsl:attribute name="type">
-        <xsl:choose>
-          <xsl:when test="@ind1 = '7'">
-            <xsl:call-template name="auth">
-              <xsl:with-param name="code" select="marc:subfield[@code = '2']" />
-            </xsl:call-template>
-          </xsl:when>
-          <xsl:otherwise>LAC</xsl:otherwise>
-        </xsl:choose>
+        <xsl:value-of select="marc:subfield[@code = '2']" />
       </xsl:attribute>
       <xsl:value-of select="marc:subfield[@code = 'a']"/>
     </idno>
@@ -304,6 +292,67 @@
   </xsl:template>
   
   <xd:doc>
+    <xd:desc>
+      <xd:p>Create tei:series from MARC 810</xd:p>
+    </xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = ('810')]">
+    <series>
+      <xsl:apply-templates select="marc:subfield[@code = 't']" />
+      <xsl:apply-templates select="marc:subfield[@code = 'a']" />
+      <xsl:apply-templates select="marc:subfield[@code = 'v']" />
+      <xsl:apply-templates select="marc:subfield[@code = 'w']" />
+    </series>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>
+      <xd:p>Create tei:series/tei:respStmt for MARC 810$a</xd:p>
+    </xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = ('810')]/marc:subfield[@code = 'a']">
+    <respStmt>
+      <name type="org">
+        <xsl:apply-templates />
+      </name>
+    </respStmt>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>
+      <xd:p>Create tei:series/tei:title</xd:p>
+    </xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = ('810')]/marc:subfield[@code = 't']">
+    <title>
+      <xsl:apply-templates />
+    </title>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>
+      <xd:p>Create tei:series/tei:biblScope</xd:p>
+    </xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = ('810')]/marc:subfield[@code = 'v']">
+    <biblScope>
+      <xsl:apply-templates />
+    </biblScope>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>
+      <xd:p>Create tei:series/tei:idno</xd:p>
+    </xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = ('810')]/marc:subfield[@code = 'w']">
+    <idno>
+      <xsl:attribute name="type" select="analyze-string(., '\w+-\d+')/*:match[1]" />
+      <xsl:value-of select="substring-after(., ')')" />
+    </idno>
+  </xsl:template>
+  
+  <xd:doc>
     <xd:desc>Fallback template for all unhandled marc:datafield</xd:desc>
   </xd:doc>
   <xsl:template match="marc:datafield">
@@ -338,17 +387,14 @@
       <xd:p><xd:b>May be overwritten by importing stylesheets</xd:b> to use their own selection mechanism when multiple
         subfields are present.</xd:p>
     </xd:desc>
-    <xd:param name="fields">
-      <xd:p>The subfields to be evaluated.</xd:p>
-    </xd:param>
   </xd:doc>
-  <xsl:template name="attRef">
-    <xsl:param name="fields" />
+  <xsl:template match="marc:subfield[@code = '0']">
     <xsl:variable name="refs" as="xs:string+">
-      <xsl:apply-templates select="$fields" mode="ref" />
+      <xsl:apply-templates select="." mode="ref" />
     </xsl:variable>
     <!-- TODO: evaluate MARC field to use a different “prefix” -->
-    <xsl:value-of select="'per:' || ($refs[starts-with(., 'gnd')], $refs)[1]"/>
+    <xsl:attribute name="ref"
+      select="'per:' || ($refs[starts-with(., 'gnd')], $refs)[1]"/>
   </xsl:template>
   
   <xd:doc>
