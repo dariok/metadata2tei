@@ -93,7 +93,7 @@
       <xsl:apply-templates select="marc:datafield[@tag = '041']" />
       <!-- ID of this record -->
       <xsl:apply-templates select="marc:controlfield[@tag = '001']
-        | marc:datafield[@tag = ('015', '016', '020')]" />
+        | marc:datafield[@tag = ('015', '016', '020', '022')]" />
       <!-- notes -->
       <xsl:apply-templates select="marc:datafield[@tag = ('500')]" />
       <!-- edition -->
@@ -106,7 +106,7 @@
       <!-- TODO put 6xx into a note? ref won’t work for full text only cases like possibly 655 and keywords is not
         available in any possibly descendant of biblStruct -->
       <xsl:apply-templates select="marc:datafield[not(@tag
-        = ('001', '015', '016', '020', '035', '040', '041', '043', '084', '100', '245', '250', '260', '264', '300',
+        = ('001', '015', '016', '020', '022', '035', '040', '041', '043', '084', '100', '245', '250', '260', '264', '300',
           '490', '500', '502', '600', '655', '700', '810', '924'))]" />
     </xsl:element>
     <xsl:apply-templates select="marc:datafield[@tag = ('810')]" />
@@ -210,6 +210,15 @@
   </xd:doc>
   <xsl:template match="marc:datafield[@tag = '020']">
     <idno type="isbn">
+      <xsl:value-of select="marc:subfield[@code = 'a']"/>
+    </idno>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>Crete an idno from MARC 022 (ISSN)</xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = '022']">
+    <idno type="issn">
       <xsl:value-of select="marc:subfield[@code = 'a']"/>
     </idno>
   </xsl:template>
