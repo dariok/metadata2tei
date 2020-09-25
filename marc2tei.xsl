@@ -46,6 +46,7 @@
         <xsl:attribute name="xml:id" select="$id" />
       </xsl:if>
       <xsl:apply-templates select="." mode="struct" />
+      <xsl:apply-templates select="marc:datafield[@tag = '490']" />
     </biblStruct>
   </xsl:template>
   
@@ -63,7 +64,6 @@
       <xsl:if test="$id">
         <xsl:attribute name="xml:id" select="$id" />
       </xsl:if>
-      <xsl:apply-templates select="." mode="struct" />
     </biblFull>
   </xsl:template>
   
@@ -92,17 +92,24 @@
       <!-- language(s) -->
       <xsl:apply-templates select="marc:datafield[@tag = '041']" />
       <!-- ID of this record -->
-      <xsl:apply-templates select="marc:controlfield[@tag = '001']" />
+      <xsl:apply-templates select="marc:controlfield[@tag = '001']
+        | marc:datafield[@tag = ('015', '016', '020')]" />
+      <!-- notes -->
+      <xsl:apply-templates select="marc:datafield[@tag = ('500')]" />
       <!-- edition -->
-      <xsl:apply-templates select="marc:datafield[@tag = '250']" />
+      <xsl:apply-templates select="marc:datafield[@tag = ('250', '502')]" />
       <!-- imprint -->
       <xsl:apply-templates select="marc:datafield[@tag = ('260', '264')]" />
       <!-- extent -->
       <xsl:apply-templates select="marc:datafield[@tag = '300']/*" />
       <!-- TODO series from 760 and 762 -->
+      <!-- TODO put 6xx into a note? ref won’t work for full text only cases like possibly 655 and keywords is not
+        available in any possibly descendant of biblStruct -->
       <xsl:apply-templates select="marc:datafield[not(@tag
-        = ('001', '035', '040', '041', '084', '100', '245', '250', '260', '264', '300', '700','924'))]" />
+        = ('001', '015', '016', '020', '035', '040', '041', '043', '084', '100', '245', '250', '260', '264', '300',
+          '490', '500', '502', '600', '655', '700', '810', '924'))]" />
     </xsl:element>
+    <xsl:apply-templates select="marc:datafield[@tag = ('810')]" />
   </xsl:template>
   
   <xd:doc>
@@ -125,11 +132,7 @@
       </xsl:choose>
     </xsl:variable>
     <xsl:element name="{$name}">
-      <xsl:attribute name="ref">
-        <xsl:call-template name="attRef">
-          <xsl:with-param name="fields" select="marc:subfield[@code = '0']" />
-        </xsl:call-template>
-      </xsl:attribute>
+      <xsl:apply-templates select="marc:subfield[@code = '0']" />
       <xsl:apply-templates select="marc:subfield[@code = 'a']" />
     </xsl:element>
   </xsl:template>
@@ -175,20 +178,48 @@
   <xsl:template match="marc:controlfield[@tag = '001']">
     <idno>
       <xsl:attribute name="type">
-        <xsl:call-template name="auth">
-          <xsl:with-param name="code" select="parent::*/marc:controlfield[@tag = '003']" />
-        </xsl:call-template>
+        <xsl:value-of select="parent::*/marc:controlfield[@tag = '003']" />
       </xsl:attribute>
       <xsl:value-of select="."/>
     </idno>
   </xsl:template>
   
   <xd:doc>
+    <xd:desc>Crete an idno from MARC 015 (number in national bilbiography)</xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = '015']">
+    <idno type="national_bibliography" subtype="{marc:subfield[@code = '2']}">
+      <xsl:value-of select="marc:subfield[@code = 'a']"/>
+    </idno>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>Crete an idno from MARC 016 (controlnumber in national library)</xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = '016']">
+    <idno>
+      <xsl:attribute name="type">
+        <xsl:value-of select="marc:subfield[@code = '2']" />
+      </xsl:attribute>
+      <xsl:value-of select="marc:subfield[@code = 'a']"/>
+    </idno>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>Crete an idno from MARC 020 (ISBN)</xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = '020']">
+    <idno type="isbn">
+      <xsl:value-of select="marc:subfield[@code = 'a']"/>
+    </idno>
+  </xsl:template>
+  
+  <xd:doc>
     <xd:desc>
-      <xd:p>Information about the edition</xd:p>
+      <xd:p>Information about the edition, created from MARC 205 (edition) or 502 (dissertation)</xd:p>
     </xd:desc>
   </xd:doc>
-  <xsl:template match="marc:datafield[@tag = '250']">
+  <xsl:template match="marc:datafield[@tag = ('250', 502)]">
     <edition>
       <xsl:apply-templates select="marc:subfield[@code = 'a']" />
     </edition>
@@ -227,6 +258,17 @@
   
   <xd:doc>
     <xd:desc>
+      <xd:p>Create a seires element for each MARC 490</xd:p>
+    </xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = '490']">
+    <series>
+      <xsl:apply-templates />
+    </series>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>
       <xd:p>Create multiple extent from the data in 300</xd:p>
     </xd:desc>
   </xd:doc>
@@ -235,6 +277,79 @@
     <extent>
       <xsl:apply-templates />
     </extent>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>
+      <xd:p>Create tei:note from MARC 500</xd:p>
+    </xd:desc>
+  </xd:doc>
+  <!-- TODO try to parse info in specific subfields, esp. dimensions in $c -->
+  <xsl:template match="marc:datafield[@tag = '500']">
+    <note>
+      <xsl:apply-templates select="marc:subfield" />
+    </note>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>
+      <xd:p>Create tei:series from MARC 810</xd:p>
+    </xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = ('810')]">
+    <series>
+      <xsl:apply-templates select="marc:subfield[@code = 't']" />
+      <xsl:apply-templates select="marc:subfield[@code = 'a']" />
+      <xsl:apply-templates select="marc:subfield[@code = 'v']" />
+      <xsl:apply-templates select="marc:subfield[@code = 'w']" />
+    </series>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>
+      <xd:p>Create tei:series/tei:respStmt for MARC 810$a</xd:p>
+    </xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = ('810')]/marc:subfield[@code = 'a']">
+    <respStmt>
+      <name type="org">
+        <xsl:apply-templates />
+      </name>
+    </respStmt>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>
+      <xd:p>Create tei:series/tei:title</xd:p>
+    </xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = ('810')]/marc:subfield[@code = 't']">
+    <title>
+      <xsl:apply-templates />
+    </title>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>
+      <xd:p>Create tei:series/tei:biblScope</xd:p>
+    </xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = ('810')]/marc:subfield[@code = 'v']">
+    <biblScope>
+      <xsl:apply-templates />
+    </biblScope>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>
+      <xd:p>Create tei:series/tei:idno</xd:p>
+    </xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = ('810')]/marc:subfield[@code = 'w']">
+    <idno>
+      <xsl:attribute name="type" select="analyze-string(., '\w+-\d+')/*:match[1]" />
+      <xsl:value-of select="substring-after(., ')')" />
+    </idno>
   </xsl:template>
   
   <xd:doc>
@@ -272,17 +387,14 @@
       <xd:p><xd:b>May be overwritten by importing stylesheets</xd:b> to use their own selection mechanism when multiple
         subfields are present.</xd:p>
     </xd:desc>
-    <xd:param name="fields">
-      <xd:p>The subfields to be evaluated.</xd:p>
-    </xd:param>
   </xd:doc>
-  <xsl:template name="attRef">
-    <xsl:param name="fields" />
+  <xsl:template match="marc:subfield[@code = '0']">
     <xsl:variable name="refs" as="xs:string+">
-      <xsl:apply-templates select="$fields" mode="ref" />
+      <xsl:apply-templates select="." mode="ref" />
     </xsl:variable>
     <!-- TODO: evaluate MARC field to use a different “prefix” -->
-    <xsl:value-of select="'per:' || ($refs[starts-with(., 'gnd')], $refs)[1]"/>
+    <xsl:attribute name="ref"
+      select="'per:' || ($refs[starts-with(., 'gnd')], $refs)[1]"/>
   </xsl:template>
   
   <xd:doc>
@@ -297,6 +409,7 @@
   <xsl:template name="auth">
     <xsl:param name="code" />
     <xsl:choose>
+      <xsl:when test="$code='DE-101'">dnb</xsl:when>
       <xsl:when test="$code='DE-588'">gnd</xsl:when>
       <xsl:when test="$code='DE-603'">hebis</xsl:when>
       <xsl:otherwise>???</xsl:otherwise>
