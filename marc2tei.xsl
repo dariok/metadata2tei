@@ -244,7 +244,7 @@
     <imprint>
       <xsl:apply-templates select="marc:subfield[@code = 'a']" />
       <xsl:apply-templates select="marc:subfield[@code = 'b']" />
-      <xsl:apply-templates select="marc:subfield[@code = 'c']" />
+      <xsl:apply-templates select="marc:subfield[@code = ('c', '3')]" />
     </imprint>
   </xsl:template>
   
@@ -258,7 +258,8 @@
       <xsl:choose>
         <xsl:when test="@code = 'a'">pubPlace</xsl:when>
         <xsl:when test="@code = 'b'">publisher</xsl:when>
-        <xsl:when test="@code = 'c'">date</xsl:when>
+        <!-- TODO learn more about the usage of subfield 3 with dates -->
+        <xsl:when test="@code = ('c', '3')">date</xsl:when>
       </xsl:choose>
     </xsl:variable>
     <xsl:element name="{$name}">
