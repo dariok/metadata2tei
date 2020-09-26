@@ -110,14 +110,14 @@
     <xsl:apply-templates select="marc:datafield[@tag = ('810')]" />
     
     <!-- general annotations – no special TEI elements for these -->
-    <xsl:apply-templates select="marc:datafield[@tag = '336']" />
+    <xsl:apply-templates select="marc:datafield[@tag = ('336', '337')]" />
     
     <!-- TODO series from 760 and 762 -->
     <!-- TODO put 6xx into a note? ref won’t work for full text only cases like possibly 655 and keywords is not
         available in any possibly descendant of biblStruct -->
     <xsl:apply-templates select="marc:datafield[not(@tag
       = ('001', '015', '016', '020', '022', '035', '040', '041', '043', '084', '100', '245', '250', '260', '264', '300',
-        '336', '490', '500', '502', '600', '655', '700', '810', '924'))]" />
+        '336', '337', '490', '500', '502', '600', '655', '700', '810', '924'))]" />
   </xsl:template>
   
   <xd:doc>
@@ -371,18 +371,24 @@
   </xsl:template>
   
   <xd:doc>
-    <xd:desc>Content Type</xd:desc>
+    <xd:desc>Content Type, Media Type</xd:desc>
   </xd:doc>
   <!-- TODO split multiple values into multiple terms? -->
-  <xsl:template match="marc:datafield[@tag = '336']">
-    <note type="Content-Type" source="https://www.loc.gov/standards/sourcelist/genre-form.html#{string(marc:subfield[@code='2'])}">
+  <xsl:template match="marc:datafield[@tag = ('336', '337')]">
+    <xsl:variable name="type">
+      <xsl:choose>
+        <xsl:when test="@tag = '336'">Content-Type</xsl:when>
+        <xsl:when test="@tag = '337'">Media-Type</xsl:when>
+      </xsl:choose>
+    </xsl:variable>
+    <note type="{$type}" source="https://www.loc.gov/standards/sourcelist/genre-form.html#{string(marc:subfield[@code='2'])}">
       <xsl:apply-templates select="marc:subfield[@code != '2']" />
     </note>
   </xsl:template>
   <xd:doc>
     <xd:desc>subfield of 336 will be terms</xd:desc>
   </xd:doc>
-  <xsl:template match="marc:datafield[@tag = '336']/marc:subfield">
+  <xsl:template match="marc:datafield[@tag = ('336', '337')]/marc:subfield">
     <term>
       <xsl:apply-templates />
     </term>
