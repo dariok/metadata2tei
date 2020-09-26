@@ -108,10 +108,12 @@
       <!-- create series -->
       <xsl:apply-templates select="marc:datafield[@tag = ('490', '773', '830')]" />
       
+      <xsl:apply-templates select="marc:datafield[@tag = '856']" />
+      
       <xsl:apply-templates select="marc:datafield[not(@tag
         = ('001', '015', '016', '020', '022', '035', '040', '041', '043', '084', '100', '245', '250', '260', '264', '300',
           '336', '337', '338', '362', '363', '490', '500', '502', '546', '600', '650', '655', '700', '710', '773', '776',
-          '810', '924'))]" />
+          '810', '856', '924'))]" />
     </biblStruct>
   </xsl:template>
   
@@ -522,6 +524,18 @@
       </xsl:if>
       <xsl:apply-templates select="marc:subfield[@code = 'w']" />
     </series>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>Electronic Location and Access</xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = '856']">
+    <ref>
+      <xsl:if test="marc:subfield[@code = 'u']">
+        <xsl:attribute name="target" select="marc:subfield[@code = 'u']" />
+      </xsl:if>
+      <xsl:apply-templates select="marc:subfield[@code = '3']" />
+    </ref>
   </xsl:template>
   
   <xd:doc>
