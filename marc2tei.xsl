@@ -115,7 +115,7 @@
     <!-- dates and sequences -->
     <xsl:apply-templates select="marc:datafield[@tag = ('362', '363')]" />
     <!-- subject fields -->
-    <xsl:apply-templates select="marc:datafield[@tag = '650']" />
+    <xsl:apply-templates select="marc:datafield[@tag = ('650', '655')]" />
     
     <!-- TODO series from 760 and 762 -->
     <!-- TODO put 6xx into a note? ref won’t work for full text only cases like possibly 655 and keywords is not
@@ -458,12 +458,31 @@
     <xd:desc>MARC subject fields</xd:desc>
   </xd:doc>
   <xsl:template match="marc:datafield[@tag = '650']">
-    <ref type="Topical-Term" >
-      <xsl:if test="marc:subfield[@code = '2']">
-        <xsl:attribute name="source" select="marc:subfield[@code = '2']" />
-      </xsl:if>
+    <ref type="Topical-Term" source="https://www.loc.gov/standards/sourcelist/subject.html#{string(marc:subfield[@code='2'])}">
       <xsl:if test="marc:subfield[@code = '0']">
         <xsl:attribute name="target" select="marc:subfield[@code = '0']" />
+      </xsl:if>
+      <xsl:apply-templates select="marc:subfield[@code = 'a']" />
+    </ref>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>MARC subject fields</xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = '655']">
+    <ref type="Genre-Term" source="https://www.loc.gov/standards/sourcelist/genre-form.html#{string(marc:subfield[@code='2'])}">
+      <xsl:if test="marc:subfield[@code = '0']">
+        <xsl:attribute name="target">
+          <xsl:variable name="refs" as="xs:string+">
+            <xsl:for-each select="marc:subfield[@code = '0']">
+              <xsl:variable name="val">
+                <xsl:apply-templates select="." mode="ref" />
+              </xsl:variable>
+              <xsl:value-of select="'thi:' || $val" />
+            </xsl:for-each>
+          </xsl:variable>
+          <xsl:value-of select="string-join($refs, ' ')" />
+        </xsl:attribute>
       </xsl:if>
       <xsl:apply-templates select="marc:subfield[@code = 'a']" />
     </ref>
