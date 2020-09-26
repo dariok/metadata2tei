@@ -110,15 +110,17 @@
     <xsl:apply-templates select="marc:datafield[@tag = ('810')]" />
     
     <!-- general annotations – no special TEI elements for these -->
+    <!-- types -->
     <xsl:apply-templates select="marc:datafield[@tag = ('336', '337', '338')]" />
-    <xsl:apply-templates select="marc:datafield[@tag = '362']" />
+    <!-- dates and sequences -->
+    <xsl:apply-templates select="marc:datafield[@tag = ('362', '363')]" />
     
     <!-- TODO series from 760 and 762 -->
     <!-- TODO put 6xx into a note? ref won’t work for full text only cases like possibly 655 and keywords is not
         available in any possibly descendant of biblStruct -->
     <xsl:apply-templates select="marc:datafield[not(@tag
       = ('001', '015', '016', '020', '022', '035', '040', '041', '043', '084', '100', '245', '250', '260', '264', '300',
-        '336', '337', '338', '362', '490', '500', '502', '600', '655', '700', '810', '924'))]" />
+         '336', '337', '338', '362', '363', '490', '500', '502', '600', '655', '700', '810', '924'))]" />
   </xsl:template>
   
   <xd:doc>
@@ -372,7 +374,9 @@
   </xsl:template>
   
   <xd:doc>
-    <xd:desc>Content Type, Media Type, Carrier Type</xd:desc>
+    <xd:desc>Content Type;
+             Media Type;
+             Carrier Type</xd:desc>
   </xd:doc>
   <!-- TODO split multiple values into multiple terms? -->
   <xsl:template match="marc:datafield[@tag = ('336', '337', '338')]">
@@ -402,6 +406,49 @@
   <xsl:template match="marc:datafield[@tag = '362']">
     <note type="Dates-of-Publication">
       <xsl:apply-templates select="marc:subfield[@code = 'a']" />
+    </note>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>Normalizted Date and Sequential Designation</xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = '363']">
+    <note type="Normalized-Date">
+      <xsl:choose>
+        <xsl:when test="@ind1 = '0'">
+          <xsl:attribute name="subtype">
+            <xsl:text>start</xsl:text>
+            <xsl:if test="@ind2 != ' '">
+              <xsl:text>:</xsl:text>
+              <xsl:choose>
+                <xsl:when test="@ind2 = '0'">closed</xsl:when>
+                <xsl:when test="@ind2 = '1'">open</xsl:when>
+              </xsl:choose>
+            </xsl:if>
+          </xsl:attribute>
+        </xsl:when>
+        <xsl:when test="@ind1 = '1'">
+          <xsl:attribute name="subtype">
+            <xsl:text>end</xsl:text>
+            <xsl:if test="@ind2 != ' '">
+              <xsl:text>:</xsl:text>
+              <xsl:choose>
+                <xsl:when test="@ind2 = '0'">closed</xsl:when>
+                <xsl:when test="@ind2 = '1'">open</xsl:when>
+              </xsl:choose>
+            </xsl:if></xsl:attribute>
+        </xsl:when>
+      </xsl:choose>
+      <xsl:apply-templates select="marc:subfield[@code = '8']" />
+      <xsl:value-of select="string-join(marc:subfield[@code = ('a', 'b', 'c', 'd', 'e', 'f')], '-')" />
+      <xsl:if test="marc:subfield[@code = ('g', 'h')]">
+        <xsl:text>(</xsl:text>
+        <xsl:value-of select="string-join(marc:subfield[@code = ('g', 'h')], '-')" />
+        <xsl:text>)</xsl:text>
+      </xsl:if>
+      <xsl:text>.</xsl:text>
+      <xsl:value-of select="string-join(marc:subfield[@code = ('i', 'j', 'k', 'l')], '-')" />
+      <xsl:apply-templates select="marc:subfield[@code = ('x', 'z')]" />
     </note>
   </xsl:template>
   
@@ -448,6 +495,23 @@
     <!-- TODO: evaluate MARC field to use a different “prefix” -->
     <xsl:attribute name="ref"
       select="'per:' || ($refs[starts-with(., 'gnd')], $refs)[1]"/>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>MARC linking subfields</xd:desc>
+  </xd:doc>
+  <!-- TODO should the exact sequencing be reconstructed using @prev and @next? -->
+  <xsl:template match="marc:subfield[@code = '8']">
+    <xsl:attribute name="n" select="normalize-space()" />
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>public and non-public notes</xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:subfield[@code = ('x', 'z')]">
+    <note type="{if (@code = 'x') then 'non-' else ''}public">
+      <xsl:apply-templates />
+    </note>
   </xsl:template>
   
   <xd:doc>
