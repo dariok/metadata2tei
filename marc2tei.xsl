@@ -46,13 +46,14 @@
         <xsl:attribute name="xml:id" select="$id" />
       </xsl:if>
       <xsl:apply-templates select="." mode="struct" />
+      <!-- create series -->
       <xsl:apply-templates select="marc:datafield[@tag = '490']" />
     </biblStruct>
   </xsl:template>
   
   <xd:doc>
     <xd:desc>
-      <xd:p>Entry point for biblStruct.</xd:p>
+      <xd:p>Entry point for biblFull.</xd:p>
     </xd:desc>
     <xd:param name="id">
       <xd:p>If an @xml:id should be set, if can be provided with this param</xd:p>
@@ -88,7 +89,7 @@
       <xsl:apply-templates select="marc:datafield[@tag = '100']" />
       <!-- title -->
       <xsl:apply-templates select="marc:datafield[@tag = '245']/*" />
-      <!-- additinal responsibility statements (e.g. works of an author in 100, edited by someone -->
+      <!-- additional responsibility statements (e.g. works of an author in 100, edited by someone -->
       <xsl:apply-templates select="marc:datafield[@tag = '700']" />
       <!-- language(s) -->
       <xsl:apply-templates select="marc:datafield[@tag = '041']" />
@@ -103,14 +104,20 @@
       <xsl:apply-templates select="marc:datafield[@tag = ('260', '264')]" />
       <!-- extent -->
       <xsl:apply-templates select="marc:datafield[@tag = '300']/*" />
-      <!-- TODO series from 760 and 762 -->
-      <!-- TODO put 6xx into a note? ref won’t work for full text only cases like possibly 655 and keywords is not
-        available in any possibly descendant of biblStruct -->
-      <xsl:apply-templates select="marc:datafield[not(@tag
-        = ('001', '015', '016', '020', '022', '035', '040', '041', '043', '084', '100', '245', '250', '260', '264', '300',
-          '490', '500', '502', '600', '655', '700', '810', '924'))]" />
     </xsl:element>
+    
+    <!-- additional entries for series -->
     <xsl:apply-templates select="marc:datafield[@tag = ('810')]" />
+    
+    <!-- general annotations – no special TEI elements for these -->
+    <xsl:apply-templates select="marc:datafield[@tag = '336']" />
+    
+    <!-- TODO series from 760 and 762 -->
+    <!-- TODO put 6xx into a note? ref won’t work for full text only cases like possibly 655 and keywords is not
+        available in any possibly descendant of biblStruct -->
+    <xsl:apply-templates select="marc:datafield[not(@tag
+      = ('001', '015', '016', '020', '022', '035', '040', '041', '043', '084', '100', '245', '250', '260', '264', '300',
+        '336', '490', '500', '502', '600', '655', '700', '810', '924'))]" />
   </xsl:template>
   
   <xd:doc>
@@ -119,9 +126,9 @@
         content of $e as element name in case an unknown value is encountered so these cases can be caught by schema
         validation.</xd:p>
       <xd:p>MARC fields 100 (personal name) and are used.</xd:p>
-      <xd:p>TODO: provide a longer list of values to take care of different languages</xd:p>
     </xd:desc>
   </xd:doc>
+  <!-- TODO: provide a longer list of values to take care of different languages -->
   <xsl:template match="marc:datafield[@tag = ('100', '700')]">
     <xsl:variable name="name">
       <xsl:choose>
@@ -269,7 +276,7 @@
   
   <xd:doc>
     <xd:desc>
-      <xd:p>Create a seires element for each MARC 490</xd:p>
+      <xd:p>Create a series element for each MARC 490</xd:p>
     </xd:desc>
   </xd:doc>
   <xsl:template match="marc:datafield[@tag = '490']">
@@ -361,6 +368,24 @@
       <xsl:attribute name="type" select="analyze-string(., '\w+-\d+')/*:match[1]" />
       <xsl:value-of select="substring-after(., ')')" />
     </idno>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>Content Type</xd:desc>
+  </xd:doc>
+  <!-- TODO split multiple values into multiple terms? -->
+  <xsl:template match="marc:datafield[@tag = '336']">
+    <note type="Content-Type" source="https://www.loc.gov/standards/sourcelist/genre-form.html#{string(marc:subfield[@code='2'])}">
+      <xsl:apply-templates select="marc:subfield[@code != '2']" />
+    </note>
+  </xsl:template>
+  <xd:doc>
+    <xd:desc>subfield of 336 will be terms</xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = '336']/marc:subfield">
+    <term>
+      <xsl:apply-templates />
+    </term>
   </xsl:template>
   
   <xd:doc>
