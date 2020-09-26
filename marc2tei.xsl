@@ -472,6 +472,16 @@
   </xsl:template>
   
   <xd:doc>
+    <xd:desc>Host Item entry</xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = '773']">
+    <series>
+      <xsl:apply-templates select="marc:subfield[@code = 'w']" />
+      <xsl:apply-templates select="marc:subfield[@code = 'q']" />
+    </series>
+  </xsl:template>
+  
+  <xd:doc>
     <xd:desc>Additional Physical Form Entry</xd:desc>
   </xd:doc>
   <xsl:template match="marc:datafield[@tag = '776']">
