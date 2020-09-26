@@ -173,6 +173,8 @@
           <xsl:when test="@code = 'a'">main</xsl:when>
           <xsl:when test="@code = 'b'">sub</xsl:when>
           <xsl:when test="@code = 'c'">resp</xsl:when>
+          <xsl:when test="@code = 'n'">partNumber</xsl:when>
+          <xsl:when test="@code = 'p'">partName</xsl:when>
           <xsl:otherwise>other</xsl:otherwise>
         </xsl:choose>
       </xsl:attribute>
