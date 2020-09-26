@@ -47,7 +47,7 @@
       </xsl:if>
       <xsl:apply-templates select="." mode="struct" />
       <!-- create series -->
-      <xsl:apply-templates select="marc:datafield[@tag = '490']" />
+      <xsl:apply-templates select="marc:datafield[@tag = ('490', '830')]" />
     </biblStruct>
   </xsl:template>
   
@@ -117,9 +117,7 @@
     <!-- subject fields -->
     <xsl:apply-templates select="marc:datafield[@tag = ('650', '655')]" />
     <!-- Linking entries-General Information -->
-    <xsl:apply-templates select="marc:datafield[@tag = '776']">
-      
-    </xsl:apply-templates>
+    <xsl:apply-templates select="marc:datafield[@tag = '776']"/>
     
     <!-- TODO series from 760 and 762 -->
     <xsl:apply-templates select="marc:datafield[not(@tag
@@ -323,6 +321,9 @@
   </xd:doc>
   <xsl:template match="marc:datafield[@tag = ('810')]">
     <series>
+      <xsl:if test="marc:subfield[@code = '7']">
+        <xsl:attribute name="n" select="marc:subfield[@code = '7']" />
+      </xsl:if>
       <xsl:apply-templates select="marc:subfield[@code = 't']" />
       <xsl:apply-templates select="marc:subfield[@code = 'a']" />
       <xsl:apply-templates select="marc:subfield[@code = 'v']" />
@@ -348,8 +349,8 @@
       <xd:p>Create tei:series/tei:biblScope</xd:p>
     </xd:desc>
   </xd:doc>
-  <xsl:template match="marc:datafield[@tag = ('810')]/marc:subfield[@code = 'v']">
-    <biblScope>
+  <xsl:template match="marc:datafield[@tag = ('810', '830')]/marc:subfield[@code = 'v']">
+    <biblScope unit="volume">
       <xsl:apply-templates />
     </biblScope>
   </xsl:template>
@@ -485,6 +486,29 @@
       </xsl:if>
       <xsl:apply-templates select="marc:subfield[@code = 'w']" />
     </note>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>Series Added Entry – Uniform Title</xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = '830']">
+    <series>
+      <xsl:if test="marc:subfield[@code = '7']">
+        <xsl:attribute name="n" select="marc:subfield[@code = '7']" />
+      </xsl:if>
+      <xsl:if test="marc:subfield[@code = 'a']">
+        <title>
+          <xsl:apply-templates select="marc:subfield[@code = 'a']" />
+        </title>
+      </xsl:if>
+      <xsl:apply-templates select="marc:subfield[@code = 'v']" />
+      <xsl:if test="marc:subfield[@code = '9']">
+        <biblScope unit="volume-sortable">
+          <xsl:apply-templates select="marc:subfield[@code = '9']" />
+        </biblScope>
+      </xsl:if>
+      <xsl:apply-templates select="marc:subfield[@code = 'w']" />
+    </series>
   </xsl:template>
   
   <xd:doc>
