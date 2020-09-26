@@ -114,13 +114,15 @@
     <xsl:apply-templates select="marc:datafield[@tag = ('336', '337', '338')]" />
     <!-- dates and sequences -->
     <xsl:apply-templates select="marc:datafield[@tag = ('362', '363')]" />
+    <!-- subject fields -->
+    <xsl:apply-templates select="marc:datafield[@tag = '650']" />
     
     <!-- TODO series from 760 and 762 -->
     <!-- TODO put 6xx into a note? ref won’t work for full text only cases like possibly 655 and keywords is not
         available in any possibly descendant of biblStruct -->
     <xsl:apply-templates select="marc:datafield[not(@tag
       = ('001', '015', '016', '020', '022', '035', '040', '041', '043', '084', '100', '245', '250', '260', '264', '300',
-         '336', '337', '338', '362', '363', '490', '500', '502', '600', '655', '700', '810', '924'))]" />
+         '336', '337', '338', '362', '363', '490', '500', '502', '600', '650', '655', '700', '810', '924'))]" />
   </xsl:template>
   
   <xd:doc>
@@ -450,6 +452,21 @@
       <xsl:value-of select="string-join(marc:subfield[@code = ('i', 'j', 'k', 'l')], '-')" />
       <xsl:apply-templates select="marc:subfield[@code = ('x', 'z')]" />
     </note>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>MARC subject fields</xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = '650']">
+    <ref type="Topical-Term" >
+      <xsl:if test="marc:subfield[@code = '2']">
+        <xsl:attribute name="source" select="marc:subfield[@code = '2']" />
+      </xsl:if>
+      <xsl:if test="marc:subfield[@code = '0']">
+        <xsl:attribute name="target" select="marc:subfield[@code = '0']" />
+      </xsl:if>
+      <xsl:apply-templates select="marc:subfield[@code = 'a']" />
+    </ref>
   </xsl:template>
   
   <xd:doc>
