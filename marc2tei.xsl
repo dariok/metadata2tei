@@ -116,13 +116,15 @@
     <xsl:apply-templates select="marc:datafield[@tag = ('362', '363')]" />
     <!-- subject fields -->
     <xsl:apply-templates select="marc:datafield[@tag = ('650', '655')]" />
+    <!-- Linking entries-General Information -->
+    <xsl:apply-templates select="marc:datafield[@tag = '776']">
+      
+    </xsl:apply-templates>
     
     <!-- TODO series from 760 and 762 -->
-    <!-- TODO put 6xx into a note? ref won’t work for full text only cases like possibly 655 and keywords is not
-        available in any possibly descendant of biblStruct -->
     <xsl:apply-templates select="marc:datafield[not(@tag
       = ('001', '015', '016', '020', '022', '035', '040', '041', '043', '084', '100', '245', '250', '260', '264', '300',
-         '336', '337', '338', '362', '363', '490', '500', '502', '600', '650', '655', '700', '810', '924'))]" />
+         '336', '337', '338', '362', '363', '490', '500', '502', '600', '650', '655', '700', '776', '810', '924'))]" />
   </xsl:template>
   
   <xd:doc>
@@ -343,17 +345,6 @@
   
   <xd:doc>
     <xd:desc>
-      <xd:p>Create tei:series/tei:title</xd:p>
-    </xd:desc>
-  </xd:doc>
-  <xsl:template match="marc:datafield[@tag = ('810')]/marc:subfield[@code = 't']">
-    <title>
-      <xsl:apply-templates />
-    </title>
-  </xsl:template>
-  
-  <xd:doc>
-    <xd:desc>
       <xd:p>Create tei:series/tei:biblScope</xd:p>
     </xd:desc>
   </xd:doc>
@@ -361,18 +352,6 @@
     <biblScope>
       <xsl:apply-templates />
     </biblScope>
-  </xsl:template>
-  
-  <xd:doc>
-    <xd:desc>
-      <xd:p>Create tei:series/tei:idno</xd:p>
-    </xd:desc>
-  </xd:doc>
-  <xsl:template match="marc:datafield[@tag = ('810')]/marc:subfield[@code = 'w']">
-    <idno>
-      <xsl:attribute name="type" select="analyze-string(., '\w+-\d+')/*:match[1]" />
-      <xsl:value-of select="substring-after(., ')')" />
-    </idno>
   </xsl:template>
   
   <xd:doc>
@@ -489,6 +468,26 @@
   </xsl:template>
   
   <xd:doc>
+    <xd:desc></xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = '776']">
+    <note type="Additional-Physical-Form">
+      <xsl:if test="marc:subfield[@code = 'i']">
+        <note type="display-text">
+          <xsl:apply-templates select="marc:subfield[@code = 'i']" />
+        </note>
+      </xsl:if>
+      <xsl:apply-templates select="marc:subfield[@code = ('t', 'd')]" />
+      <xsl:if test="marc:subfield[@code = 'h']">
+        <note type="physical-description">
+          <xsl:apply-templates select="marc:subfield[@code = 'h']" />
+        </note>
+      </xsl:if>
+      <xsl:apply-templates select="marc:subfield[@code = 'w']" />
+    </note>
+  </xsl:template>
+  
+  <xd:doc>
     <xd:desc>Fallback template for all unhandled marc:datafield</xd:desc>
   </xd:doc>
   <xsl:template match="marc:datafield">
@@ -539,6 +538,38 @@
   <!-- TODO should the exact sequencing be reconstructed using @prev and @next? -->
   <xsl:template match="marc:subfield[@code = '8']">
     <xsl:attribute name="n" select="normalize-space()" />
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>subfield $d usually contains imprint information</xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:subfield[@code = 'd']">
+    <imprint>
+      <xsl:apply-templates />
+    </imprint>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>
+      <xd:p>subfield $t usually contains a title</xd:p>
+    </xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:subfield[@code = 't']">
+    <title>
+      <xsl:apply-templates />
+    </title>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>
+      <xd:p>subfield $w usually contains record control numbers or similar identifiers </xd:p>
+    </xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:subfield[@code = 'w']">
+    <idno type="MARC-Code">
+      <xsl:attribute name="subtype" select="analyze-string(., '\w+-\d+')/*:match[1]" />
+      <xsl:value-of select="substring-after(., ')')" />
+    </idno>
   </xsl:template>
   
   <xd:doc>
