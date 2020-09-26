@@ -92,7 +92,18 @@
       <!-- additional responsibility statements (e.g. works of an author in 100, edited by someone -->
       <xsl:apply-templates select="marc:datafield[@tag = '700']" />
       <!-- language(s) -->
-      <xsl:apply-templates select="marc:datafield[@tag = '041']" />
+      <xsl:if test="marc:datafield[@tag = ('041', '546')]">
+        <textLang>
+          <xsl:if test="marc:datafield[@tag = '041']/marc:subfield[@code = 'a']">
+            <xsl:attribute name="mainLang" select="string(marc:datafield[@tag = '041']/marc:subfield[@code = 'a'][1])" />
+          </xsl:if>
+          <xsl:if test="count(marc:datafield[@tag = '041']/marc:subfield[@code = 'a']) gt 1">
+            <xsl:attribute name="otherLangs"
+              select="string-join(marc:datafield[@tag = '041']/marc:subfield[@code = 'a' and preceding-sibling::*[@code = 'a']], ' ')" />
+          </xsl:if>
+          <xsl:apply-templates select="marc:datafield[@tag = '546']/marc:subfield[@code = 'a']" />
+        </textLang>
+      </xsl:if>
       <!-- ID of this record -->
       <xsl:apply-templates select="marc:controlfield[@tag = '001']
         | marc:datafield[@tag = ('015', '016', '020', '022')]" />
@@ -122,7 +133,7 @@
     <!-- TODO series from 760 and 762 -->
     <xsl:apply-templates select="marc:datafield[not(@tag
       = ('001', '015', '016', '020', '022', '035', '040', '041', '043', '084', '100', '245', '250', '260', '264', '300',
-         '336', '337', '338', '362', '363', '490', '500', '502', '600', '650', '655', '700', '776', '810', '924'))]" />
+         '336', '337', '338', '362', '363', '490', '500', '502', '546', '600', '650', '655', '700', '776', '810', '924'))]" />
   </xsl:template>
   
   <xd:doc>
@@ -167,20 +178,6 @@
       </xsl:attribute>
       <xsl:apply-templates />
     </title>
-  </xsl:template>
-  
-  <xd:doc>
-    <xd:desc>
-      <xd:p>create one textLang combining the entries in MARC 041</xd:p>
-    </xd:desc>
-  </xd:doc>
-  <xsl:template match="marc:datafield[@tag = '041']">
-    <textLang mainLang="{string(marc:subfield[@code = 'a'][1])}">
-      <xsl:if test="count(marc:subfield[@code = 'a']) gt 1">
-        <xsl:attribute name="otherLangs"
-          select="string-join(marc:subfield[@code = 'a' and preceding-sibling::*[@code = 'a']], ' ')" />
-      </xsl:if>
-    </textLang>
   </xsl:template>
   
   <xd:doc>
