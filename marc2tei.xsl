@@ -12,7 +12,7 @@
     <xd:desc>Transform a MARC XML record into a tei:biblStruct</xd:desc>
   </xd:doc>
   
-  <xsl:output indent="1" />
+  <xsl:output indent="1" omit-xml-declaration="1"/>
   
   <xd:doc>
     <xd:desc>
