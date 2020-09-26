@@ -128,12 +128,13 @@
     <!-- subject fields -->
     <xsl:apply-templates select="marc:datafield[@tag = ('650', '655')]" />
     <!-- Linking entries-General Information -->
-    <xsl:apply-templates select="marc:datafield[@tag = '776']"/>
+    <xsl:apply-templates select="marc:datafield[@tag = ('710', '776')]"/>
     
     <!-- TODO series from 760 and 762 -->
     <xsl:apply-templates select="marc:datafield[not(@tag
       = ('001', '015', '016', '020', '022', '035', '040', '041', '043', '084', '100', '245', '250', '260', '264', '300',
-         '336', '337', '338', '362', '363', '490', '500', '502', '546', '600', '650', '655', '700', '776', '810', '924'))]" />
+         '336', '337', '338', '362', '363', '490', '500', '502', '546', '600', '650', '655', '700', '710', '776', '810',
+         '924'))]" />
   </xsl:template>
   
   <xd:doc>
@@ -391,7 +392,7 @@
   </xsl:template>
   
   <xd:doc>
-    <xd:desc>Normalizted Date and Sequential Designation</xd:desc>
+    <xd:desc>Normalized Date and Sequential Designation</xd:desc>
   </xd:doc>
   <xsl:template match="marc:datafield[@tag = '363']">
     <note type="Normalized-Date">
@@ -468,7 +469,26 @@
   </xsl:template>
   
   <xd:doc>
-    <xd:desc></xd:desc>
+    <xd:desc>Added Entry – Corporate Name</xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = '710']">
+    <note type="Added-Entry-Corporate-Name" source="https://www.loc.gov/standards/sourcelist/name-title.html#{marc:subfield[@code = '2']}">
+      <xsl:if test="marc:subfield[@code = 'a']">
+        <name type="org" subtype="main">
+          <xsl:apply-templates select="marc:subfield[@code = 'a']" />
+        </name>
+      </xsl:if>
+      <xsl:if test="marc:subfield[@code = 'b']">
+        <name type="org" subtype="subordinate">
+          <xsl:apply-templates select="marc:subfield[@code = 'b']" />
+        </name>
+      </xsl:if>
+      <xsl:apply-templates select="marc:subfield[@code = '0']" mode="idno" />
+    </note>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>Additional Physical Form Entry</xd:desc>
   </xd:doc>
   <xsl:template match="marc:datafield[@tag = '776']">
     <note type="Additional-Physical-Form">
@@ -553,6 +573,18 @@
     <!-- TODO: evaluate MARC field to use a different “prefix” -->
     <xsl:attribute name="ref"
       select="'per:' || ($refs[starts-with(., 'gnd')], $refs)[1]"/>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>
+      <xd:p>create idno from $0</xd:p>
+    </xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:subfield[@code = '0']" mode="idno">
+    <idno type="MARC-Code">
+      <xsl:attribute name="subtype" select="analyze-string(., '\w+-\d+')/*:match[1]" />
+      <xsl:value-of select="substring-after(., ')')" />
+    </idno>
   </xsl:template>
   
   <xd:doc>
