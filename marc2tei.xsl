@@ -15,20 +15,24 @@
   <xsl:output indent="1" omit-xml-declaration="1"/>
   
   <xd:doc>
+    <xd:desc>Whether to create a biblStruct or a biblFull</xd:desc>
+  </xd:doc>
+  <xsl:param name="type" />
+  
+  <xd:doc>
     <xd:desc>
       <xd:p>Main entry point. Will usually be overwritten by importing XSLT.</xd:p>
-      <xd:p>Importing stylesheets will have to create tei:biblStruct in an appropriate place; this will depend on the
-        source of the MARC data, e.g. a SRU API.</xd:p>
     </xd:desc>
   </xd:doc>
   <xsl:template match="/">
-    <listBibl>
-      <xsl:for-each select="descendant::marc:record">
-        <biblStruct>
-          <xsl:apply-templates select="." />
-        </biblStruct>
-      </xsl:for-each>
-    </listBibl>
+    <xsl:choose>
+      <xsl:when test="$type = 'biblStruct'">
+        <xsl:apply-templates select="//marc:record" mode="biblStruct" />
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:apply-templates select="//marc:record" mode="biblFull" />
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
   
   <xd:doc>
@@ -45,9 +49,69 @@
       <xsl:if test="$id">
         <xsl:attribute name="xml:id" select="$id" />
       </xsl:if>
-      <xsl:apply-templates select="." mode="struct" />
+      <xsl:variable name="level">
+        <xsl:variable name="code" select="substring(marc:leader, 8, 1)"/>
+        <xsl:choose>
+          <xsl:when test="$code = 'a'">analytic</xsl:when>
+          <xsl:when test="$code = 'm'">monogr</xsl:when>
+          <xsl:when test="$code = 's'">monogr</xsl:when>
+          <xsl:otherwise>unknown</xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>
+      <xsl:element name="{$level}">
+        <!-- author, editor, respStmt -->
+        <xsl:apply-templates select="marc:datafield[@tag = '100']" />
+        <!-- title -->
+        <xsl:apply-templates select="marc:datafield[@tag = '245']/*" />
+        <!-- additional responsibility statements (e.g. works of an author in 100, edited by someone -->
+        <xsl:apply-templates select="marc:datafield[@tag = '700']" />
+        <!-- language(s) -->
+        <xsl:if test="marc:datafield[@tag = ('041', '546')]">
+          <textLang>
+            <xsl:if test="marc:datafield[@tag = '041']/marc:subfield[@code = 'a']">
+              <xsl:attribute name="mainLang" select="string(marc:datafield[@tag = '041']/marc:subfield[@code = 'a'][1])" />
+            </xsl:if>
+            <xsl:if test="count(marc:datafield[@tag = '041']/marc:subfield[@code = 'a']) gt 1">
+              <xsl:attribute name="otherLangs"
+                select="string-join(marc:datafield[@tag = '041']/marc:subfield[@code = 'a' and preceding-sibling::*[@code = 'a']], ' ')" />
+            </xsl:if>
+            <xsl:apply-templates select="marc:datafield[@tag = '546']/marc:subfield[@code = 'a']" />
+          </textLang>
+        </xsl:if>
+        <!-- ID of this record -->
+        <xsl:apply-templates select="marc:controlfield[@tag = '001']
+          | marc:datafield[@tag = ('015', '016', '020', '022')]" />
+        <!-- notes -->
+        <xsl:apply-templates select="marc:datafield[@tag = ('500')]" />
+        <!-- edition -->
+        <xsl:apply-templates select="marc:datafield[@tag = ('250', '502')]" />
+        <!-- imprint -->
+        <xsl:apply-templates select="marc:datafield[@tag = ('260', '264')]" />
+        <!-- extent -->
+        <xsl:apply-templates select="marc:datafield[@tag = '300']/*" />
+      </xsl:element>
+      
+      <!-- additional entries for series -->
+      <xsl:apply-templates select="marc:datafield[@tag = ('810')]" />
+      
+      <!-- general annotations – no special TEI elements for these -->
+      <!-- types -->
+      <xsl:apply-templates select="marc:datafield[@tag = ('336', '337', '338')]" />
+      <!-- dates and sequences -->
+      <xsl:apply-templates select="marc:datafield[@tag = ('362', '363')]" />
+      <!-- subject fields -->
+      <xsl:apply-templates select="marc:datafield[@tag = ('650', '655')]" />
+      <!-- Linking entries-General Information -->
+      <xsl:apply-templates select="marc:datafield[@tag = ('710', '776')]"/>
+      
+      <!-- TODO series from 760 and 762 -->
       <!-- create series -->
-      <xsl:apply-templates select="marc:datafield[@tag = ('490', '830')]" />
+      <xsl:apply-templates select="marc:datafield[@tag = ('490', '773', '830')]" />
+      
+      <xsl:apply-templates select="marc:datafield[not(@tag
+        = ('001', '015', '016', '020', '022', '035', '040', '041', '043', '084', '100', '245', '250', '260', '264', '300',
+          '336', '337', '338', '362', '363', '490', '500', '502', '546', '600', '650', '655', '700', '710', '773', '776',
+          '810', '924'))]" />
     </biblStruct>
   </xsl:template>
   
@@ -66,75 +130,6 @@
         <xsl:attribute name="xml:id" select="$id" />
       </xsl:if>
     </biblFull>
-  </xsl:template>
-  
-  <xd:doc>
-    <xd:desc>
-      <xd:p>Create the contents of a biblStruct. Depending on the type specified in the leader (position 7,
-        zero-based), we create analytic or monogr.</xd:p>
-    </xd:desc>
-  </xd:doc>
-  <xsl:template match="marc:record">
-    <xsl:variable name="level">
-      <xsl:variable name="code" select="substring(marc:leader, 8, 1)"/>
-      <xsl:choose>
-        <xsl:when test="$code = 'a'">analytic</xsl:when>
-        <xsl:when test="$code = 'm'">monogr</xsl:when>
-        <xsl:when test="$code = 's'">monogr</xsl:when>
-        <xsl:otherwise>unknown</xsl:otherwise>
-      </xsl:choose>
-    </xsl:variable>
-    <xsl:element name="{$level}">
-      <!-- author, editor, respStmt -->
-      <xsl:apply-templates select="marc:datafield[@tag = '100']" />
-      <!-- title -->
-      <xsl:apply-templates select="marc:datafield[@tag = '245']/*" />
-      <!-- additional responsibility statements (e.g. works of an author in 100, edited by someone -->
-      <xsl:apply-templates select="marc:datafield[@tag = '700']" />
-      <!-- language(s) -->
-      <xsl:if test="marc:datafield[@tag = ('041', '546')]">
-        <textLang>
-          <xsl:if test="marc:datafield[@tag = '041']/marc:subfield[@code = 'a']">
-            <xsl:attribute name="mainLang" select="string(marc:datafield[@tag = '041']/marc:subfield[@code = 'a'][1])" />
-          </xsl:if>
-          <xsl:if test="count(marc:datafield[@tag = '041']/marc:subfield[@code = 'a']) gt 1">
-            <xsl:attribute name="otherLangs"
-              select="string-join(marc:datafield[@tag = '041']/marc:subfield[@code = 'a' and preceding-sibling::*[@code = 'a']], ' ')" />
-          </xsl:if>
-          <xsl:apply-templates select="marc:datafield[@tag = '546']/marc:subfield[@code = 'a']" />
-        </textLang>
-      </xsl:if>
-      <!-- ID of this record -->
-      <xsl:apply-templates select="marc:controlfield[@tag = '001']
-        | marc:datafield[@tag = ('015', '016', '020', '022')]" />
-      <!-- notes -->
-      <xsl:apply-templates select="marc:datafield[@tag = ('500')]" />
-      <!-- edition -->
-      <xsl:apply-templates select="marc:datafield[@tag = ('250', '502')]" />
-      <!-- imprint -->
-      <xsl:apply-templates select="marc:datafield[@tag = ('260', '264')]" />
-      <!-- extent -->
-      <xsl:apply-templates select="marc:datafield[@tag = '300']/*" />
-    </xsl:element>
-    
-    <!-- additional entries for series -->
-    <xsl:apply-templates select="marc:datafield[@tag = ('810')]" />
-    
-    <!-- general annotations – no special TEI elements for these -->
-    <!-- types -->
-    <xsl:apply-templates select="marc:datafield[@tag = ('336', '337', '338')]" />
-    <!-- dates and sequences -->
-    <xsl:apply-templates select="marc:datafield[@tag = ('362', '363')]" />
-    <!-- subject fields -->
-    <xsl:apply-templates select="marc:datafield[@tag = ('650', '655')]" />
-    <!-- Linking entries-General Information -->
-    <xsl:apply-templates select="marc:datafield[@tag = ('710', '776')]"/>
-    
-    <!-- TODO series from 760 and 762 -->
-    <xsl:apply-templates select="marc:datafield[not(@tag
-      = ('001', '015', '016', '020', '022', '035', '040', '041', '043', '084', '100', '245', '250', '260', '264', '300',
-         '336', '337', '338', '362', '363', '490', '500', '502', '546', '600', '650', '655', '700', '710', '776', '810',
-         '924'))]" />
   </xsl:template>
   
   <xd:doc>
@@ -342,17 +337,6 @@
         <xsl:apply-templates />
       </name>
     </respStmt>
-  </xsl:template>
-  
-  <xd:doc>
-    <xd:desc>
-      <xd:p>Create tei:series/tei:biblScope</xd:p>
-    </xd:desc>
-  </xd:doc>
-  <xsl:template match="marc:datafield[@tag = ('810', '830')]/marc:subfield[@code = 'v']">
-    <biblScope unit="volume">
-      <xsl:apply-templates />
-    </biblScope>
   </xsl:template>
   
   <xd:doc>
@@ -613,6 +597,17 @@
     <title>
       <xsl:apply-templates />
     </title>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>
+      <xd:p>Create tei:biblScope</xd:p>
+    </xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = ('810', '830')]/marc:subfield[@code = 'v'] | marc:datafield[@tag = '773']/marc:subfield[@code = 'q']">
+    <biblScope unit="volume">
+      <xsl:apply-templates />
+    </biblScope>
   </xsl:template>
   
   <xd:doc>
