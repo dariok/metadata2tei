@@ -162,7 +162,8 @@
       </xsl:choose>
     </xsl:variable>
     <xsl:element name="{$name}">
-      <xsl:apply-templates select="marc:subfield[@code = '0']" />
+      <xsl:apply-templates select="(marc:subfield[@code = '0' and contains(., 'DE-588')],
+        marc:subfield[@code = '0' and not(contains(., 'DE-588'))])[1]" />
       <xsl:apply-templates select="marc:subfield[@code = 'a']" />
     </xsl:element>
   </xsl:template>
