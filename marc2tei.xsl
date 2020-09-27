@@ -102,7 +102,7 @@
       
       <!-- general annotations – no special TEI elements for these -->
       <!-- Classification numbers -->
-      <xsl:apply-templates select="marc:datafield[@tag = ('082')]" />
+      <xsl:apply-templates select="marc:datafield[@tag = ('082', '084')]" />
       <!-- types -->
       <xsl:apply-templates select="marc:datafield[@tag = ('336', '337', '338')]" />
       <!-- dates and sequences -->
@@ -119,7 +119,7 @@
       <xsl:apply-templates select="marc:datafield[@tag = '883']" />
       
       <xsl:apply-templates select="marc:datafield[not(@tag
-        = ('001', '015', '016', '020', '022', '035', '040', '041', '043', '082', '100', '245', '250', '260', '264', '300',
+        = ('001', '015', '016', '020', '022', '035', '040', '041', '043', '082', '084', '100', '245', '250', '260', '264', '300',
           '336', '337', '338', '362', '363', '490', '500', '502', '546', '600', '650', '655', '700', '710', '773', '776',
           '787', '810', '856', '883', '924'))]" />
     </biblStruct>
@@ -247,7 +247,7 @@
   </xsl:template>
   
   <xd:doc>
-    <xd:desc>Classification Numbers</xd:desc>
+    <xd:desc>Classification Numbers: DDC</xd:desc>
   </xd:doc>
   <xsl:template match="marc:datafield[@tag = ('082')]">
     <ref type="DDC">
@@ -260,6 +260,15 @@
       <xsl:if test="marc:subfield[@code = '8']">
         <xsl:attribute name="n" select="marc:subfield[@code ='8']" />
       </xsl:if>
+    </ref>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>Other Classification Number</xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = '084']">
+    <ref type="Other-Classification" subtype="{marc:subfield[@code = '2']}" cRef="{marc:subfield[@code = 'a']}">
+      <xsl:apply-templates select="marc:subfield[@code = '0']" mode="idno" />
     </ref>
   </xsl:template>
   
