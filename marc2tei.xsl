@@ -234,10 +234,7 @@
     <xd:desc>Crete an idno from MARC 016 (controlnumber in national library)</xd:desc>
   </xd:doc>
   <xsl:template match="marc:datafield[@tag = '016']">
-    <idno>
-      <xsl:attribute name="type">
-        <xsl:value-of select="marc:subfield[@code = '2']" />
-      </xsl:attribute>
+    <idno type="National-Bibliographic-Agency" source="{marc:subfield[@code = '2']}">
       <xsl:value-of select="marc:subfield[@code = 'a']"/>
     </idno>
   </xsl:template>
