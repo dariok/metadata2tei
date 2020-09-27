@@ -192,7 +192,7 @@
         be a part of the title.</xd:p>
     </xd:desc>
   </xd:doc>
-  <xsl:template match="marc:datafield[@tag = ('245', '490', '830')]/marc:subfield[@code != ('v')]">
+  <xsl:template match="marc:datafield[@tag = ('245', '490', '830')]/marc:subfield[not(@code = ('v', 'w'))]">
     <title>
       <xsl:attribute name="type">
         <xsl:choose>
