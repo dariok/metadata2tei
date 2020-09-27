@@ -190,7 +190,7 @@
         be put into either author or editor (as mandated by the TEI GL).</xd:p>
     </xd:desc>
   </xd:doc>
-  <xsl:template match="marc:datafield[@tag = ('245', '490', '830')]/marc:subfield[not(@code = ('v', 'w'))]">
+  <xsl:template match="marc:datafield[@tag = ('245', '490', '830')]/marc:subfield[not(@code = ('v', 'w', 'x'))]">
     <title>
       <xsl:attribute name="type">
         <xsl:choose>
@@ -735,10 +735,19 @@
   <xd:doc>
     <xd:desc>public and non-public notes</xd:desc>
   </xd:doc>
-  <xsl:template match="marc:subfield[@code = ('x', 'z')]">
+  <xsl:template match="marc:subfield[@code = ('x', 'z')][parent::*[not(@tag = '490')]]">
     <note type="{if (@code = 'x') then 'non-' else ''}public">
       <xsl:apply-templates />
     </note>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>subfield x to ISSN</xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = '490']/marc:subfield[@code = 'x']">
+    <idno type="issn">
+      <xsl:value-of select="."/>
+    </idno>
   </xsl:template>
   
   <xd:doc>
