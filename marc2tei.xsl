@@ -115,10 +115,13 @@
       <!-- additional relationship entries -->
       <xsl:apply-templates select="marc:datafield[@tag = '787'][1]" />
       
+      <!-- additional metadata entries -->
+      <xsl:apply-templates select="marc:datafield[@tag = '883']" />
+      
       <xsl:apply-templates select="marc:datafield[not(@tag
         = ('001', '015', '016', '020', '022', '035', '040', '041', '043', '082', '100', '245', '250', '260', '264', '300',
           '336', '337', '338', '362', '363', '490', '500', '502', '546', '600', '650', '655', '700', '710', '773', '776',
-          '787', '810', '856', '924'))]" />
+          '787', '810', '856', '883', '924'))]" />
     </biblStruct>
   </xsl:template>
   
@@ -253,6 +256,9 @@
       </xsl:if>
       <xsl:if test="marc:subfield[@code = 'a']">
         <xsl:attribute name="cRef" select="string-join(marc:subfield[@code = 'a'], '|')" />
+      </xsl:if>
+      <xsl:if test="marc:subfield[@code = '8']">
+        <xsl:attribute name="n" select="marc:subfield[@code ='8']" />
       </xsl:if>
     </ref>
   </xsl:template>
@@ -586,6 +592,15 @@
       </xsl:if>
       <xsl:apply-templates select="marc:subfield[@code = '3']" />
     </ref>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>Metadata provenance</xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = '883']">
+    <note type="Metadata-Provenance" corresp="{marc:subfield[@code = '8']}">
+      <name type="org"><xsl:value-of select="marc:subfield[@code = 'q']" /></name>
+    </note>
   </xsl:template>
   
   <xd:doc>
