@@ -216,7 +216,7 @@
     </xd:desc>
   </xd:doc>
   <xsl:template match="marc:controlfield[@tag = '001']">
-    <idno type="Control-Number" source="{parent::*/marc:controlfield[@tag = '003']}">
+    <idno type="Control-Number" source="info:isil/{parent::*/marc:controlfield[@tag = '003']}">
       <xsl:value-of select="."/>
     </idno>
   </xsl:template>
@@ -225,7 +225,7 @@
     <xd:desc>Crete an idno from MARC 015 (number in national bilbiography)</xd:desc>
   </xd:doc>
   <xsl:template match="marc:datafield[@tag = '015']">
-    <idno type="national_bibliography" subtype="{marc:subfield[@code = '2']}">
+    <idno type="National-Bibliography" source="{marc:subfield[@code = '2']}">
       <xsl:value-of select="marc:subfield[@code = 'a']"/>
     </idno>
   </xsl:template>
