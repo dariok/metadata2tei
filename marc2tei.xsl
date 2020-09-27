@@ -383,7 +383,7 @@
       <xsl:apply-templates select="marc:subfield[@code = 't']" />
       <xsl:apply-templates select="marc:subfield[@code = 'a']" />
       <xsl:apply-templates select="marc:subfield[@code = 'v']" />
-      <xsl:apply-templates select="marc:subfield[@code = 'w']" />
+      <xsl:apply-templates select="marc:subfield[@code = 'w']" mode="idno" />
     </series>
   </xsl:template>
   
@@ -537,7 +537,7 @@
   </xd:doc>
   <xsl:template match="marc:datafield[@tag = '773']">
     <series>
-      <xsl:apply-templates select="marc:subfield[@code = 'w']" />
+      <xsl:apply-templates select="marc:subfield[@code = 'w']" mode="idno" />
       <xsl:apply-templates select="marc:subfield[@code = 'q']" />
     </series>
   </xsl:template>
@@ -607,7 +607,7 @@
           <xsl:value-of select="marc:subfield[@code = '9']" />
         </biblScope>
       </xsl:if>
-      <xsl:apply-templates select="marc:subfield[@code = 'w']" />
+      <xsl:apply-templates select="marc:subfield[@code = 'w']" mode="idno" />
     </series>
   </xsl:template>
   
@@ -682,9 +682,14 @@
       <xd:p>create idno from $0</xd:p>
     </xd:desc>
   </xd:doc>
-  <xsl:template match="marc:subfield[@code = '0']" mode="idno">
-    <idno type="MARC-Code">
-      <xsl:attribute name="subtype" select="analyze-string(., '\w+-\d+')/*:match[1]" />
+  <xsl:template match="marc:subfield" mode="idno">
+    <idno source="info:isil/{analyze-string(., '\w+-\d+')/*:match[1]}">
+      <xsl:attribute name="type">
+        <xsl:choose>
+          <xsl:when test="parent::*/@tag = ('810', '830')">bibliographic-record-control-number</xsl:when>
+          <xsl:when test="parent::*/@tag = ('082', '084')">authority-record-control-number</xsl:when>
+        </xsl:choose>
+      </xsl:attribute>
       <xsl:value-of select="substring-after(., ')')" />
     </idno>
   </xsl:template>
@@ -724,20 +729,8 @@
   </xd:doc>
   <xsl:template match="marc:datafield[@tag = ('490', '810', '830')]/marc:subfield[@code = 'v'] | marc:datafield[@tag = '773']/marc:subfield[@code = 'q']">
     <biblScope unit="volume">
-      <xsl:apply-templates />
+      <xsl:value-of select="." />
     </biblScope>
-  </xsl:template>
-  
-  <xd:doc>
-    <xd:desc>
-      <xd:p>subfield $w usually contains record control numbers or similar identifiers </xd:p>
-    </xd:desc>
-  </xd:doc>
-  <xsl:template match="marc:subfield[@code = 'w']">
-    <idno type="MARC-Code">
-      <xsl:attribute name="subtype" select="analyze-string(., '\w+-\d+')/*:match[1]" />
-      <xsl:value-of select="substring-after(., ')')" />
-    </idno>
   </xsl:template>
   
   <xd:doc>
