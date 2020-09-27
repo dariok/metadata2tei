@@ -91,6 +91,12 @@
         <xsl:apply-templates select="marc:datafield[@tag = '300']/*" />
       </xsl:element>
       
+      <!-- TODO series from 760 and 762 -->
+      <!-- create series -->
+      <xsl:apply-templates select="marc:datafield[@tag = ('490', '773', '830')]" />
+      
+      <xsl:apply-templates select="marc:datafield[@tag = '856']" />
+      
       <!-- additional entries for series -->
       <xsl:apply-templates select="marc:datafield[@tag = ('810')]" />
       
@@ -103,12 +109,6 @@
       <xsl:apply-templates select="marc:datafield[@tag = ('650', '655')]" />
       <!-- Linking entries-General Information -->
       <xsl:apply-templates select="marc:datafield[@tag = ('710', '776')]"/>
-      
-      <!-- TODO series from 760 and 762 -->
-      <!-- create series -->
-      <xsl:apply-templates select="marc:datafield[@tag = ('490', '773', '830')]" />
-      
-      <xsl:apply-templates select="marc:datafield[@tag = '856']" />
       
       <xsl:apply-templates select="marc:datafield[not(@tag
         = ('001', '015', '016', '020', '022', '035', '040', '041', '043', '084', '100', '245', '250', '260', '264', '300',
