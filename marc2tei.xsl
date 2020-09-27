@@ -483,11 +483,9 @@
     <xd:desc>MARC subject fields</xd:desc>
   </xd:doc>
   <xsl:template match="marc:datafield[@tag = '650']">
-    <ref type="Topical-Term" source="https://www.loc.gov/standards/sourcelist/subject.html#{string(marc:subfield[@code='2'])}">
-      <xsl:if test="marc:subfield[@code = '0']">
-        <xsl:attribute name="target" select="marc:subfield[@code = '0']" />
-      </xsl:if>
-      <xsl:apply-templates select="marc:subfield[@code = 'a']" />
+    <ref type="Topical-Term" source="https://id.loc.gov/vocabulary/subjectSchemes/{string(marc:subfield[@code='2'])}.html">
+      <xsl:apply-templates select="marc:subfield[@code = '0']" mode="idno" />
+      <xsl:apply-templates select="marc:subfield[@code = 'a']" mode="term" />
     </ref>
   </xsl:template>
   
@@ -692,6 +690,15 @@
       </xsl:attribute>
       <xsl:value-of select="substring-after(., ')')" />
     </idno>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>Create term from a subfield</xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:subfield" mode="term">
+    <term>
+      <xsl:value-of select="." />
+    </term>
   </xsl:template>
   
   <xd:doc>
