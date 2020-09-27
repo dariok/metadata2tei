@@ -342,9 +342,18 @@
       <xd:p>Create multiple extent from the data in 300</xd:p>
     </xd:desc>
   </xd:doc>
-  <!-- TODO try to parse info in specific subfields, esp. dimensions in $c -->
   <xsl:template match="marc:datafield[@tag = '300']/marc:subfield">
     <extent>
+      <xsl:attribute name="n">
+        <xsl:choose>
+          <xsl:when test="@code = 'a'">Extent</xsl:when>
+          <xsl:when test="@code = 'b'">Physical-Details</xsl:when>
+          <xsl:when test="@code = 'c'">Dimensions</xsl:when>
+          <xsl:when test="@code = 'e'">Accompanying-Material</xsl:when>
+          <xsl:when test="@code = 'f'">Type-of-Unit</xsl:when>
+          <xsl:when test="@code = 'g'">Size-of-Unit</xsl:when>
+        </xsl:choose>
+      </xsl:attribute>
       <xsl:apply-templates />
     </extent>
   </xsl:template>
