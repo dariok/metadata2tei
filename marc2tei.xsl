@@ -147,7 +147,7 @@
       <xd:p>Create an author, editor or respStmt element depending on the value of the “function” subfield. Uses the
         content of $e as element name in case an unknown value is encountered so these cases can be caught by schema
         validation.</xd:p>
-      <xd:p>MARC fields 100 (personal name) and are used.</xd:p>
+      <xd:p>MARC fields 100 and 700 are used.</xd:p>
     </xd:desc>
   </xd:doc>
   <!-- TODO: provide a longer list of values to take care of different languages -->
@@ -155,16 +155,26 @@
     <xsl:variable name="name">
       <xsl:choose>
         <xsl:when test="marc:subfield[@code = '4'] = ('edt')">editor</xsl:when>
-        <xsl:when test="not(marc:subfield[@code = '4'])">author</xsl:when>
-        <xsl:otherwise>
-          <xsl:value-of select="translate(marc:subfield[@code = '4'], ' ', '_')"/>
-        </xsl:otherwise>
+        <xsl:when test="not(marc:subfield[@code = '4']) or marc:subfield[@code = '4'] = 'aut'">author</xsl:when>
+        <xsl:otherwise>respStmt</xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
     <xsl:element name="{$name}">
+      <xsl:if test="$name = 'respStmt'">
+        <xsl:attribute name="ana" select="'https://id.loc.gov/vocabulary/relators/' || marc:subfield[@code = '4']" />
+      </xsl:if>
       <xsl:apply-templates select="(marc:subfield[@code = '0' and contains(., 'DE-588')],
         marc:subfield[@code = '0' and not(contains(., 'DE-588'))])[1]" />
-      <xsl:apply-templates select="marc:subfield[@code = 'a']" />
+      <xsl:if test="marc:subfield[@code = 'e']">
+        <resp>
+          <xsl:apply-templates select="marc:subfield[@code = 'e']" />
+        </resp>
+      </xsl:if>
+      <xsl:if test="marc:subfield[@code = 'a']">
+        <name type="person">
+          <xsl:apply-templates select="marc:subfield[@code = 'a']" />
+        </name>
+      </xsl:if>
     </xsl:element>
   </xsl:template>
   
