@@ -101,6 +101,8 @@
       <xsl:apply-templates select="marc:datafield[@tag = ('810')]" />
       
       <!-- general annotations – no special TEI elements for these -->
+      <!-- Classification numbers -->
+      <xsl:apply-templates select="marc:datafield[@tag = ('082')]" />
       <!-- types -->
       <xsl:apply-templates select="marc:datafield[@tag = ('336', '337', '338')]" />
       <!-- dates and sequences -->
@@ -111,7 +113,7 @@
       <xsl:apply-templates select="marc:datafield[@tag = ('710', '776')]"/>
       
       <xsl:apply-templates select="marc:datafield[not(@tag
-        = ('001', '015', '016', '020', '022', '035', '040', '041', '043', '084', '100', '245', '250', '260', '264', '300',
+        = ('001', '015', '016', '020', '022', '035', '040', '041', '043', '082', '100', '245', '250', '260', '264', '300',
           '336', '337', '338', '362', '363', '490', '500', '502', '546', '600', '650', '655', '700', '710', '773', '776',
           '810', '856', '924'))]" />
     </biblStruct>
@@ -236,6 +238,20 @@
     <idno type="issn">
       <xsl:value-of select="marc:subfield[@code = 'a']"/>
     </idno>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>Classification Numbers</xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = ('082')]">
+    <ref type="DDC">
+      <xsl:if test="marc:subfield[@code = '2']">
+        <xsl:attribute name="subtype" select="'edition_' || marc:subfield[@code = '2']" />
+      </xsl:if>
+      <xsl:if test="marc:subfield[@code = 'a']">
+        <xsl:attribute name="cRef" value-of select="string-join(marc:subfield[@code = 'a'], '|')" />
+      </xsl:if>
+    </ref>
   </xsl:template>
   
   <xd:doc>
