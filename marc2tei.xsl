@@ -112,10 +112,13 @@
       <!-- Linking entries-General Information -->
       <xsl:apply-templates select="marc:datafield[@tag = ('710', '776')]"/>
       
+      <!-- additional relationship entries -->
+      <xsl:apply-templates select="marc:datafield[@tag = '787'][1]" />
+      
       <xsl:apply-templates select="marc:datafield[not(@tag
         = ('001', '015', '016', '020', '022', '035', '040', '041', '043', '082', '100', '245', '250', '260', '264', '300',
           '336', '337', '338', '362', '363', '490', '500', '502', '546', '600', '650', '655', '700', '710', '773', '776',
-          '810', '856', '924'))]" />
+          '787', '810', '856', '924'))]" />
     </biblStruct>
   </xsl:template>
   
@@ -249,7 +252,7 @@
         <xsl:attribute name="subtype" select="'edition_' || marc:subfield[@code = '2']" />
       </xsl:if>
       <xsl:if test="marc:subfield[@code = 'a']">
-        <xsl:attribute name="cRef" value-of select="string-join(marc:subfield[@code = 'a'], '|')" />
+        <xsl:attribute name="cRef" select="string-join(marc:subfield[@code = 'a'], '|')" />
       </xsl:if>
     </ref>
   </xsl:template>
@@ -522,6 +525,36 @@
       </xsl:if>
       <xsl:apply-templates select="marc:subfield[@code = 'w']" />
     </note>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>List for: Other Relationshio entry</xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = '787']">
+    <note type="other-relationship">
+      <listBibl>
+        <xsl:apply-templates select=". | following-sibling::*[@tag = '787']" mode="bibl" />
+      </listBibl>
+    </note>
+  </xsl:template>
+  <xd:doc>
+    <xd:desc>listBibl entries for field 77x–78x</xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield" mode="bibl">
+    <bibl>
+      <xsl:if test="marc:subfield[@code = 'i']">
+        <note>
+          <xsl:value-of select="marc:subfield[@code = 'i']" />
+        </note>
+      </xsl:if>
+      <xsl:if test="marc:subfield[@code = 'a']">
+        <author>
+          <xsl:value-of select="marc:subfield[@code = 'a']" />
+        </author>
+      </xsl:if>
+      <xsl:apply-templates select="marc:subfield[@code = 't']" />
+      <xsl:apply-templates select="marc:subfield[@code = 'w']" />
+    </bibl>
   </xsl:template>
   
   <xd:doc>
