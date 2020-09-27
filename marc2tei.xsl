@@ -160,21 +160,26 @@
       </xsl:choose>
     </xsl:variable>
     <xsl:element name="{$name}">
-      <xsl:if test="$name = 'respStmt'">
-        <xsl:attribute name="ana" select="'https://id.loc.gov/vocabulary/relators/' || marc:subfield[@code = '4']" />
-      </xsl:if>
       <xsl:apply-templates select="(marc:subfield[@code = '0' and contains(., 'DE-588')],
         marc:subfield[@code = '0' and not(contains(., 'DE-588'))])[1]" />
-      <xsl:if test="marc:subfield[@code = 'e']">
-        <resp>
-          <xsl:apply-templates select="marc:subfield[@code = 'e']" />
-        </resp>
-      </xsl:if>
-      <xsl:if test="marc:subfield[@code = 'a']">
-        <name type="person">
-          <xsl:apply-templates select="marc:subfield[@code = 'a']" />
-        </name>
-      </xsl:if>
+      <xsl:choose>
+        <xsl:when test="$name = 'respStmt'">
+          <xsl:attribute name="ana" select="'https://id.loc.gov/vocabulary/relators/' || marc:subfield[@code = '4']" />
+          <xsl:if test="marc:subfield[@code = 'e']">
+            <resp>
+              <xsl:value-of select="marc:subfield[@code = 'e']" />
+            </resp>
+          </xsl:if>
+          <xsl:if test="marc:subfield[@code = 'a']">
+            <name type="person">
+              <xsl:value-of select="marc:subfield[@code = 'a']" />
+            </name>
+          </xsl:if>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="marc:subfield[@code = 'a']" />
+        </xsl:otherwise>
+      </xsl:choose>
     </xsl:element>
   </xsl:template>
   
@@ -211,10 +216,7 @@
     </xd:desc>
   </xd:doc>
   <xsl:template match="marc:controlfield[@tag = '001']">
-    <idno>
-      <xsl:attribute name="type">
-        <xsl:value-of select="parent::*/marc:controlfield[@tag = '003']" />
-      </xsl:attribute>
+    <idno type="Control-Number" source="{parent::*/marc:controlfield[@tag = '003']}">
       <xsl:value-of select="."/>
     </idno>
   </xsl:template>
