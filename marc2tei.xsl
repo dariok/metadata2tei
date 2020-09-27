@@ -413,15 +413,16 @@
         <xsl:when test="@tag = '338'">Carrier-Type</xsl:when>
       </xsl:choose>
     </xsl:variable>
-    <note type="{$type}" source="https://www.loc.gov/standards/sourcelist/genre-form.html#{string(marc:subfield[@code='2'])}">
+    <note type="{$type}" source="https://id.loc.gov/vocabulary/genreFormSchemes/{string(marc:subfield[@code='2'])}.html">
       <xsl:apply-templates select="marc:subfield[@code != '2']" />
     </note>
   </xsl:template>
   <xd:doc>
     <xd:desc>subfield of 336, 337, 338 will be terms</xd:desc>
   </xd:doc>
-  <xsl:template match="marc:datafield[@tag = ('336', '337', '338')]/marc:subfield">
-    <term>
+  <xsl:template match="marc:datafield[@tag = ('336', '337', '338')]/marc:subfield[@code = ('a', 'b')]">
+    <!-- TODO include full URI for RDA concepts? -->
+    <term type="{if (@code = 'a') then 'term' else 'code'}">
       <xsl:apply-templates />
     </term>
   </xsl:template>
