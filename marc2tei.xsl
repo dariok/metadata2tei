@@ -44,7 +44,7 @@
     </xd:param>
   </xd:doc>
   <xsl:template match="marc:record" mode="biblStruct">
-    <xsl:param name="id" />
+    <xsl:param name="id" tunnel="1"/>
     <biblStruct>
       <xsl:if test="$id">
         <xsl:attribute name="xml:id" select="$id" />
@@ -162,9 +162,13 @@
   <xd:doc>
     <xd:desc>
       <xd:p>Create a title from a MARC 245 field.</xd:p>
+      <xd:p>While some of these subfields might also have a different representation, e.g. $c as tei:respStmt, this is
+        not being done here as it cannot be determined whether the contents of $c should actually be put into either
+        author or editor (as mandated by the TEI GL) and because the logic of cataloguing has already determined it to
+        be a part of the title.</xd:p>
     </xd:desc>
   </xd:doc>
-  <xsl:template match="marc:datafield[@tag = '245']/marc:subfield">
+  <xsl:template match="marc:datafield[@tag = ('245', '490', '830')]/marc:subfield">
     <title>
       <xsl:attribute name="type">
         <xsl:choose>
@@ -173,6 +177,7 @@
           <xsl:when test="@code = 'c'">resp</xsl:when>
           <xsl:when test="@code = 'n'">partNumber</xsl:when>
           <xsl:when test="@code = 'p'">partName</xsl:when>
+          <xsl:when test="@code = 'v'">sequence</xsl:when>
           <xsl:otherwise>other</xsl:otherwise>
         </xsl:choose>
       </xsl:attribute>
@@ -511,11 +516,7 @@
       <xsl:if test="marc:subfield[@code = '7']">
         <xsl:attribute name="n" select="marc:subfield[@code = '7']" />
       </xsl:if>
-      <xsl:if test="marc:subfield[@code = 'a']">
-        <title>
-          <xsl:apply-templates select="marc:subfield[@code = 'a']" />
-        </title>
-      </xsl:if>
+      <xsl:apply-templates select="marc:subfield[@code = 'a']" />
       <xsl:apply-templates select="marc:subfield[@code = 'v']" />
       <xsl:if test="marc:subfield[@code = '9']">
         <biblScope unit="volume-sortable">
