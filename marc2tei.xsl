@@ -177,7 +177,7 @@
         be a part of the title.</xd:p>
     </xd:desc>
   </xd:doc>
-  <xsl:template match="marc:datafield[@tag = ('245', '490', '830')]/marc:subfield">
+  <xsl:template match="marc:datafield[@tag = ('245', '490', '830')]/marc:subfield[@code != ('v')]">
     <title>
       <xsl:attribute name="type">
         <xsl:choose>
@@ -186,8 +186,9 @@
           <xsl:when test="@code = 'c'">resp</xsl:when>
           <xsl:when test="@code = 'n'">partNumber</xsl:when>
           <xsl:when test="@code = 'p'">partName</xsl:when>
-          <xsl:when test="@code = 'v'">sequence</xsl:when>
-          <xsl:otherwise>other</xsl:otherwise>
+          <xsl:otherwise>
+            <xsl:message terminate="yes" />
+          </xsl:otherwise>
         </xsl:choose>
       </xsl:attribute>
       <xsl:apply-templates />
@@ -703,7 +704,7 @@
       <xd:p>Create tei:biblScope</xd:p>
     </xd:desc>
   </xd:doc>
-  <xsl:template match="marc:datafield[@tag = ('810', '830')]/marc:subfield[@code = 'v'] | marc:datafield[@tag = '773']/marc:subfield[@code = 'q']">
+  <xsl:template match="marc:datafield[@tag = ('490', '810', '830')]/marc:subfield[@code = 'v'] | marc:datafield[@tag = '773']/marc:subfield[@code = 'q']">
     <biblScope unit="volume">
       <xsl:apply-templates />
     </biblScope>
