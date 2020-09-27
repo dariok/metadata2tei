@@ -604,7 +604,7 @@
       <xsl:apply-templates select="marc:subfield[@code = 'v']" />
       <xsl:if test="marc:subfield[@code = '9']">
         <biblScope unit="volume-sortable">
-          <xsl:apply-templates select="marc:subfield[@code = '9']" />
+          <xsl:value-of select="marc:subfield[@code = '9']" />
         </biblScope>
       </xsl:if>
       <xsl:apply-templates select="marc:subfield[@code = 'w']" />
