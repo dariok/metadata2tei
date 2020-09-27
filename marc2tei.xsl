@@ -121,7 +121,7 @@
       <xsl:apply-templates select="marc:datafield[not(@tag
         = ('001', '015', '016', '020', '022', '035', '040', '041', '043', '082', '084', '100', '245', '250', '260', '264', '300',
           '336', '337', '338', '362', '363', '490', '500', '502', '546', '600', '650', '655', '700', '710', '773', '776',
-          '787', '810', '856', '883', '924'))]" />
+          '787', '810', '830', '856', '883', '924'))]" />
     </biblStruct>
   </xsl:template>
   
@@ -186,10 +186,8 @@
   <xd:doc>
     <xd:desc>
       <xd:p>Create a title from a MARC 245 field.</xd:p>
-      <xd:p>While some of these subfields might also have a different representation, e.g. $c as tei:respStmt, this is
-        not being done here as it cannot be determined whether the contents of $c should actually be put into either
-        author or editor (as mandated by the TEI GL) and because the logic of cataloguing has already determined it to
-        be a part of the title.</xd:p>
+      <xd:p>$c is not transfomred as tei:respStmt as it cannot be determined whether the contents of $c should actually
+        be put into either author or editor (as mandated by the TEI GL).</xd:p>
     </xd:desc>
   </xd:doc>
   <xsl:template match="marc:datafield[@tag = ('245', '490', '830')]/marc:subfield[not(@code = ('v', 'w'))]">
@@ -199,6 +197,7 @@
           <xsl:when test="@code = 'a'">main</xsl:when>
           <xsl:when test="@code = 'b'">sub</xsl:when>
           <xsl:when test="@code = 'c'">resp</xsl:when>
+          <xsl:when test="@code = 'h'">medium</xsl:when>
           <xsl:when test="@code = 'n'">partNumber</xsl:when>
           <xsl:when test="@code = 'p'">partName</xsl:when>
           <xsl:otherwise>
