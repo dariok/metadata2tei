@@ -101,7 +101,7 @@
       <xsl:apply-templates select="marc:datafield[@tag = ('810')]" />
       
       <!-- notes -->
-      <xsl:apply-templates select="marc:datafield[@tag = ('500', '510', '515', '533', '550')]" />
+      <xsl:apply-templates select="marc:datafield[@tag = ('500', '504', '510', '515', '533', '550')]" />
       
       <!-- general annotations – no special TEI elements for these -->
       <!-- Classification numbers -->
@@ -128,7 +128,7 @@
       
       <xsl:apply-templates select="marc:datafield[not(@tag
         = ('001', '015', '016', '020', '022', '024', '028', '035', '040', '041', '043', '082', '084', '085', '090', '100', '240',
-           '245', '246', '247', '250', '260', '264', '300', '336', '337', '338', '362', '363', '490', '500', '502', '510',
+           '245', '246', '247', '250', '260', '264', '300', '336', '337', '338', '362', '363', '490', '500', '502', '504', '510',
            '515', '530', '533', '538', '546', '550', '600', '610', '630', '648', '650', '651', '655', '700', '710', '773', '776',
            '787', '810', '830', '856', '883', '912', '924'))]" />
     </biblStruct>
@@ -440,11 +440,12 @@
     </xd:desc>
   </xd:doc>
   <!-- TODO try to parse info in specific subfields, esp. dimensions in $c -->
-  <xsl:template match="marc:datafield[@tag = ('500', '515', '550')]">
+  <xsl:template match="marc:datafield[@tag = ('500', '504', '515', '550')]">
     <note>
       <xsl:attribute name="type">
         <xsl:choose>
           <xsl:when test="@tag = '500'">General-Note</xsl:when>
+          <xsl:when test="@tag = '504'">Bibliography-Note</xsl:when>
           <xsl:when test="@tag = '515'">Numbering-Peculiarities-Note</xsl:when>
           <xsl:when test="@tag = '550'">Issuing-Body-Note</xsl:when>
         </xsl:choose>
