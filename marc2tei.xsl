@@ -82,8 +82,10 @@
         <!-- ID of this record -->
         <xsl:apply-templates select="marc:controlfield[@tag = '001']
           | marc:datafield[@tag = ('015', '016', '020', '022', '024')]" />
+        
         <!-- notes -->
-        <xsl:apply-templates select="marc:datafield[@tag = ('500')]" />
+        <xsl:apply-templates select="marc:datafield[@tag = ('500', '533')]" />
+        
         <!-- edition -->
         <xsl:apply-templates select="marc:datafield[@tag = ('250', '502')]" />
         <!-- imprint -->
@@ -122,8 +124,9 @@
       
       <xsl:apply-templates select="marc:datafield[not(@tag
         = ('001', '015', '016', '020', '022', '024', '035', '040', '041', '043', '082', '084', '090', '100', '240',
-           '245', '246', '250', '260', '264', '300', '336', '337', '338', '362', '363', '490', '500', '502', '546', '600',
-           '610', '650', '655', '700', '710', '773', '776', '787', '810', '830', '856', '883', '924'))]" />
+           '245', '246', '250', '260', '264', '300', '336', '337', '338', '362', '363', '490', '500', '502', '530',
+           '533', '546', '600', '610', '650', '655', '700', '710', '773', '776', '787', '810', '830', '856', '883',
+           '924'))]" />
     </biblStruct>
   </xsl:template>
   
@@ -352,6 +355,33 @@
   <xsl:template match="marc:datafield[@tag = '500']">
     <note>
       <xsl:value-of select="marc:subfield" />
+    </note>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>Reproduction Note</xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = '533']">
+    <note type="Reproduction-Note">
+      <xsl:apply-templates select="*[@code = 'a']">
+        <xsl:with-param name="name">note</xsl:with-param>
+        <xsl:with-param name="type">display-text</xsl:with-param>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="*[@code = 'b']">
+        <xsl:with-param name="name">name</xsl:with-param>
+        <xsl:with-param name="type">place</xsl:with-param>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="*[@code = 'c']">
+        <xsl:with-param name="name">name</xsl:with-param>
+        <xsl:with-param name="type">org</xsl:with-param>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="*[@code = 'd']">
+        <xsl:with-param name="name">date</xsl:with-param>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="*[@code = 'e']">
+        <xsl:with-param name="name">note</xsl:with-param>
+        <xsl:with-param name="type">physical-description</xsl:with-param>
+      </xsl:apply-templates>
     </note>
   </xsl:template>
   
