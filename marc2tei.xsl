@@ -120,7 +120,7 @@
       <xsl:apply-templates select="marc:datafield[@tag = ('700', '710')]"/>
       
       <!-- additional relationship entries -->
-      <xsl:apply-templates select="marc:datafield[@tag = ('772', '776', '780')]" />
+      <xsl:apply-templates select="marc:datafield[@tag = ('772', '773', '776', '780')]" />
       <xsl:apply-templates select="marc:datafield[@tag = '787'][1]" />
       
       <!-- additional metadata entries -->
@@ -578,23 +578,14 @@
   </xsl:template>
   
   <xd:doc>
-    <xd:desc>Host Item entry</xd:desc>
-  </xd:doc>
-  <xsl:template match="marc:datafield[@tag = '773']">
-    <series>
-      <xsl:apply-templates select="marc:subfield[@code = 'w']" mode="idno" />
-      <xsl:apply-templates select="marc:subfield[@code = 'q']" />
-    </series>
-  </xsl:template>
-  
-  <xd:doc>
     <xd:desc>Additional Physical Form Entry</xd:desc>
   </xd:doc>
-  <xsl:template match="marc:datafield[@tag = ('772', '776', '780')]">
+  <xsl:template match="marc:datafield[@tag = ('772', '773', '776', '780')]">
     <note type="Linking-Entries">
       <xsl:attribute name="subtype">
         <xsl:choose>
           <xsl:when test="@tag = '772'">Supplementary-Parent-Entry</xsl:when>
+          <xsl:when test="@tag = '773'">Host-Item-Entry</xsl:when>
           <xsl:when test="@tag = '776'">Additional-Physical-Form</xsl:when>
           <xsl:when test="@tag = '780'">Preceding-Entry</xsl:when>
         </xsl:choose>
@@ -612,6 +603,14 @@
       </xsl:apply-templates>
       <xsl:apply-templates select="marc:subfield[@code = 'd']">
         <xsl:with-param name="name">imprint</xsl:with-param>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="marc:subfield[@code = 'x']">
+        <xsl:with-param name="name">idno</xsl:with-param>
+        <xsl:with-param name="type">issn</xsl:with-param>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="marc:subfield[@code = 'z']">
+        <xsl:with-param name="name">idno</xsl:with-param>
+        <xsl:with-param name="type">isbn</xsl:with-param>
       </xsl:apply-templates>
       <xsl:apply-templates select="marc:subfield[@code = 'h']">
         <xsl:with-param name="name">extent</xsl:with-param>
