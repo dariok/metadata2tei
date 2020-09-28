@@ -84,7 +84,7 @@
           | marc:datafield[@tag = ('015', '016', '020', '022', '024')]" />
         
         <!-- notes -->
-        <xsl:apply-templates select="marc:datafield[@tag = ('500', '533')]" />
+        <xsl:apply-templates select="marc:datafield[@tag = ('500', '510', '533')]" />
         
         <!-- edition -->
         <xsl:apply-templates select="marc:datafield[@tag = ('250', '502')]" />
@@ -124,7 +124,8 @@
       
       <xsl:apply-templates select="marc:datafield[not(@tag
         = ('001', '015', '016', '020', '022', '024', '035', '040', '041', '043', '082', '084', '090', '100', '240',
-           '245', '246', '250', '260', '264', '300', '336', '337', '338', '362', '363', '490', '500', '502', '530',
+           '245', '246', '250', '260', '264', '300', '336', '337', '338', '362', '363', '490', '500', '502', '510',
+           '530',
            '533', '546', '600', '610', '650', '655', '700', '710', '773', '776', '787', '810', '830', '856', '883',
            '912', '924'))]" />
     </biblStruct>
@@ -355,6 +356,22 @@
   <xsl:template match="marc:datafield[@tag = '500']">
     <note>
       <xsl:value-of select="marc:subfield" />
+    </note>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>Reference Note</xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = '510']">
+    <note type="Citation-Reference-Note">
+      <xsl:apply-templates select="*[@code = 'a']">
+        <xsl:with-param name="name">ref</xsl:with-param>
+        <xsl:with-param name="type">source</xsl:with-param>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="*[@code = 'c']">
+        <xsl:with-param name="name">note</xsl:with-param>
+        <xsl:with-param name="type">location</xsl:with-param>
+      </xsl:apply-templates>
     </note>
   </xsl:template>
   
