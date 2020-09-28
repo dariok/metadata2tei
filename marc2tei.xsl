@@ -650,26 +650,12 @@
       <xsl:apply-templates select="marc:subfield[@code = 't']">
         <xsl:with-param name="name">title</xsl:with-param>
       </xsl:apply-templates>
-      <xsl:apply-templates select="marc:subfield[@code = 'a']">
-        <xsl:with-param name="name">name</xsl:with-param>
+      <xsl:apply-templates select="marc:subfield[@code = 'a']" mode="resp">
         <xsl:with-param name="type">org</xsl:with-param>
       </xsl:apply-templates>
       <xsl:apply-templates select="marc:subfield[@code = 'v']" mode="title" />
       <xsl:apply-templates select="marc:subfield[@code = 'w']" mode="idno" />
     </series>
-  </xsl:template>
-  
-  <xd:doc>
-    <xd:desc>
-      <xd:p>Create tei:series/tei:respStmt for MARC 810$a</xd:p>
-    </xd:desc>
-  </xd:doc>
-  <xsl:template match="marc:datafield[@tag = ('810')]/marc:subfield[@code = 'a']">
-    <respStmt>
-      <name type="org">
-        <xsl:apply-templates />
-      </name>
-    </respStmt>
   </xsl:template>
   
   <xd:doc>
@@ -734,6 +720,29 @@
     <xsl:attribute name="ref">
       <xsl:value-of select="string-join($refs, ' ')" />
     </xsl:attribute>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>
+      <xd:p>Create respStmt from subfield with an optional resp</xd:p>
+    </xd:desc>
+    <xd:param name="type"><xd:b>required:</xd:b> the type of name (e. g. per, org)</xd:param>
+    <xd:param name="resp"><xd:b>optional:</xd:b> content for an optional tei:resp</xd:param>
+  </xd:doc>
+  <xsl:template match="marc:subfield" mode="resp">
+    <xsl:param name="type" required="1" />
+    <xsl:param name="resp" />
+    
+    <respStmt>
+      <xsl:if test="$resp">
+        <resp>
+          <xsl:value-of select="$resp"/>
+        </resp>
+      </xsl:if>
+      <name type="{$type}">
+        <xsl:value-of select="." />
+      </name>
+    </respStmt>
   </xsl:template>
   
   <xd:doc>
