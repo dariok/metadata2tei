@@ -101,7 +101,7 @@
       <xsl:apply-templates select="marc:datafield[@tag = ('810')]" />
       
       <!-- notes -->
-      <xsl:apply-templates select="marc:datafield[@tag = ('500', '510', '515', '533')]" />
+      <xsl:apply-templates select="marc:datafield[@tag = ('500', '510', '515', '533', '550')]" />
       
       <!-- general annotations – no special TEI elements for these -->
       <!-- Classification numbers -->
@@ -125,9 +125,8 @@
       <xsl:apply-templates select="marc:datafield[not(@tag
         = ('001', '015', '016', '020', '022', '024', '028', '035', '040', '041', '043', '082', '084', '090', '100', '240',
            '245', '246', '247', '250', '260', '264', '300', '336', '337', '338', '362', '363', '490', '500', '502', '510',
-           '515', '530',
-           '533', '538', '546', '600', '610', '648', '650', '651', '655', '700', '710', '773', '776', '787', '810', '830', '856', '883',
-           '912', '924'))]" />
+           '515', '530', '533', '538', '546', '550', '600', '610', '648', '650', '651', '655', '700', '710', '773', '776',
+           '787', '810', '830', '856', '883', '912', '924'))]" />
     </biblStruct>
   </xsl:template>
   
@@ -327,21 +326,6 @@
   
   <xd:doc>
     <xd:desc>
-      <xd:p>Create a series element for each MARC 490</xd:p>
-    </xd:desc>
-  </xd:doc>
-  <xsl:template match="marc:datafield[@tag = '490']">
-    <series>
-      <xsl:apply-templates select="*[@code = ('a', 'v')]" mode="title" />
-      <xsl:apply-templates select="*[@code = 'x']">
-        <xsl:with-param name="name">idno</xsl:with-param>
-        <xsl:with-param name="type">issn</xsl:with-param>
-      </xsl:apply-templates>
-    </series>
-  </xsl:template>
-  
-  <xd:doc>
-    <xd:desc>
       <xd:p>Create multiple extent from the data in 300</xd:p>
     </xd:desc>
   </xd:doc>
@@ -363,16 +347,32 @@
   
   <xd:doc>
     <xd:desc>
+      <xd:p>Create a series element for each MARC 490</xd:p>
+    </xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = '490']">
+    <series>
+      <xsl:apply-templates select="*[@code = ('a', 'v')]" mode="title" />
+      <xsl:apply-templates select="*[@code = 'x']">
+        <xsl:with-param name="name">idno</xsl:with-param>
+        <xsl:with-param name="type">issn</xsl:with-param>
+      </xsl:apply-templates>
+    </series>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>
       <xd:p>Create tei:note from MARC 500</xd:p>
     </xd:desc>
   </xd:doc>
   <!-- TODO try to parse info in specific subfields, esp. dimensions in $c -->
-  <xsl:template match="marc:datafield[@tag = ('500', '515')]">
+  <xsl:template match="marc:datafield[@tag = ('500', '515', '550')]">
     <note>
       <xsl:attribute name="type">
         <xsl:choose>
           <xsl:when test="@tag = '500'">General-Note</xsl:when>
           <xsl:when test="@tag = '515'">Numbering-Peculiarities-Note</xsl:when>
+          <xsl:when test="@tag = '550'">Issuing-Body-Note</xsl:when>
         </xsl:choose>
       </xsl:attribute>
       <xsl:value-of select="marc:subfield" />
