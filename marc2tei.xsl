@@ -357,6 +357,65 @@
   </xsl:template>
   
   <xd:doc>
+    <xd:desc>Dates of Publication and/or Sequential Designation</xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = '362']">
+    <note type="Dates-of-Publication">
+      <xsl:value-of select="marc:subfield[@code = 'a']" />
+    </note>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>Normalized Date and Sequential Designation</xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = '363']">
+    <note type="Normalized-Date">
+      <xsl:choose>
+        <xsl:when test="@ind1 = '0'">
+          <xsl:attribute name="subtype">
+            <xsl:text>start</xsl:text>
+            <xsl:if test="@ind2 != ' '">
+              <xsl:text>:</xsl:text>
+              <xsl:choose>
+                <xsl:when test="@ind2 = '0'">closed</xsl:when>
+                <xsl:when test="@ind2 = '1'">open</xsl:when>
+              </xsl:choose>
+            </xsl:if>
+          </xsl:attribute>
+        </xsl:when>
+        <xsl:when test="@ind1 = '1'">
+          <xsl:attribute name="subtype">
+            <xsl:text>end</xsl:text>
+            <xsl:if test="@ind2 != ' '">
+              <xsl:text>:</xsl:text>
+              <xsl:choose>
+                <xsl:when test="@ind2 = '0'">closed</xsl:when>
+                <xsl:when test="@ind2 = '1'">open</xsl:when>
+              </xsl:choose>
+            </xsl:if></xsl:attribute>
+        </xsl:when>
+      </xsl:choose>
+      <xsl:apply-templates select="marc:subfield[@code = '8']" mode="n" />
+      <xsl:value-of select="string-join(marc:subfield[@code = ('a', 'b', 'c', 'd', 'e', 'f')], '-')" />
+      <xsl:if test="marc:subfield[@code = ('g', 'h')]">
+        <xsl:text>(</xsl:text>
+        <xsl:value-of select="string-join(marc:subfield[@code = ('g', 'h')], '-')" />
+        <xsl:text>)</xsl:text>
+      </xsl:if>
+      <xsl:text>.</xsl:text>
+      <xsl:value-of select="string-join(marc:subfield[@code = ('i', 'j', 'k', 'l')], '-')" />
+      <xsl:apply-templates select="marc:subfield[@code = ('x')]">
+        <xsl:with-param name="name">note</xsl:with-param>
+        <xsl:with-param name="type">public</xsl:with-param>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="marc:subfield[@code = ('z')]">
+        <xsl:with-param name="name">note</xsl:with-param>
+        <xsl:with-param name="type">non-public</xsl:with-param>
+      </xsl:apply-templates>
+    </note>
+  </xsl:template>
+  
+  <xd:doc>
     <xd:desc>
       <xd:p>Create a series element for each MARC 490</xd:p>
     </xd:desc>
@@ -430,93 +489,6 @@
         <xsl:with-param name="name">note</xsl:with-param>
         <xsl:with-param name="type">physical-description</xsl:with-param>
       </xsl:apply-templates>
-    </note>
-  </xsl:template>
-  
-  <xd:doc>
-    <xd:desc>
-      <xd:p>Create tei:series from MARC 810</xd:p>
-    </xd:desc>
-  </xd:doc>
-  <xsl:template match="marc:datafield[@tag = ('810')]">
-    <series>
-      <xsl:if test="marc:subfield[@code = '7']">
-        <xsl:attribute name="n" select="marc:subfield[@code = '7']" />
-      </xsl:if>
-      <xsl:apply-templates select="marc:subfield[@code = 't']">
-        <xsl:with-param name="name">title</xsl:with-param>
-      </xsl:apply-templates>
-      <xsl:apply-templates select="marc:subfield[@code = 'a']">
-        <xsl:with-param name="name">name</xsl:with-param>
-        <xsl:with-param name="type">org</xsl:with-param>
-      </xsl:apply-templates>
-      <xsl:apply-templates select="marc:subfield[@code = 'v']" mode="title" />
-      <xsl:apply-templates select="marc:subfield[@code = 'w']" mode="idno" />
-    </series>
-  </xsl:template>
-  
-  <xd:doc>
-    <xd:desc>
-      <xd:p>Create tei:series/tei:respStmt for MARC 810$a</xd:p>
-    </xd:desc>
-  </xd:doc>
-  <xsl:template match="marc:datafield[@tag = ('810')]/marc:subfield[@code = 'a']">
-    <respStmt>
-      <name type="org">
-        <xsl:apply-templates />
-      </name>
-    </respStmt>
-  </xsl:template>
-  
-  <xd:doc>
-    <xd:desc>Dates of Publication and/or Sequential Designation</xd:desc>
-  </xd:doc>
-  <xsl:template match="marc:datafield[@tag = '362']">
-    <note type="Dates-of-Publication">
-      <xsl:value-of select="marc:subfield[@code = 'a']" />
-    </note>
-  </xsl:template>
-  
-  <xd:doc>
-    <xd:desc>Normalized Date and Sequential Designation</xd:desc>
-  </xd:doc>
-  <xsl:template match="marc:datafield[@tag = '363']">
-    <note type="Normalized-Date">
-      <xsl:choose>
-        <xsl:when test="@ind1 = '0'">
-          <xsl:attribute name="subtype">
-            <xsl:text>start</xsl:text>
-            <xsl:if test="@ind2 != ' '">
-              <xsl:text>:</xsl:text>
-              <xsl:choose>
-                <xsl:when test="@ind2 = '0'">closed</xsl:when>
-                <xsl:when test="@ind2 = '1'">open</xsl:when>
-              </xsl:choose>
-            </xsl:if>
-          </xsl:attribute>
-        </xsl:when>
-        <xsl:when test="@ind1 = '1'">
-          <xsl:attribute name="subtype">
-            <xsl:text>end</xsl:text>
-            <xsl:if test="@ind2 != ' '">
-              <xsl:text>:</xsl:text>
-              <xsl:choose>
-                <xsl:when test="@ind2 = '0'">closed</xsl:when>
-                <xsl:when test="@ind2 = '1'">open</xsl:when>
-              </xsl:choose>
-            </xsl:if></xsl:attribute>
-        </xsl:when>
-      </xsl:choose>
-      <xsl:apply-templates select="marc:subfield[@code = '8']" mode="n" />
-      <xsl:value-of select="string-join(marc:subfield[@code = ('a', 'b', 'c', 'd', 'e', 'f')], '-')" />
-      <xsl:if test="marc:subfield[@code = ('g', 'h')]">
-        <xsl:text>(</xsl:text>
-        <xsl:value-of select="string-join(marc:subfield[@code = ('g', 'h')], '-')" />
-        <xsl:text>)</xsl:text>
-      </xsl:if>
-      <xsl:text>.</xsl:text>
-      <xsl:value-of select="string-join(marc:subfield[@code = ('i', 'j', 'k', 'l')], '-')" />
-      <xsl:apply-templates select="marc:subfield[@code = ('x', 'z')]" />
     </note>
   </xsl:template>
   
@@ -664,6 +636,40 @@
       </xsl:apply-templates>
       <xsl:apply-templates select="marc:subfield[@code = 'w']" mode="idno" />
     </bibl>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>
+      <xd:p>Create tei:series from MARC 810</xd:p>
+    </xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = ('810')]">
+    <series>
+      <xsl:apply-templates select="marc:subfield[@code = '7']" mode="n" />
+      
+      <xsl:apply-templates select="marc:subfield[@code = 't']">
+        <xsl:with-param name="name">title</xsl:with-param>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="marc:subfield[@code = 'a']">
+        <xsl:with-param name="name">name</xsl:with-param>
+        <xsl:with-param name="type">org</xsl:with-param>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="marc:subfield[@code = 'v']" mode="title" />
+      <xsl:apply-templates select="marc:subfield[@code = 'w']" mode="idno" />
+    </series>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>
+      <xd:p>Create tei:series/tei:respStmt for MARC 810$a</xd:p>
+    </xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = ('810')]/marc:subfield[@code = 'a']">
+    <respStmt>
+      <name type="org">
+        <xsl:apply-templates />
+      </name>
+    </respStmt>
   </xsl:template>
   
   <xd:doc>
