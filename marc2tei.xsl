@@ -487,7 +487,7 @@
           <xsl:when test="@tag = '650'">Topical-Term</xsl:when>
         </xsl:choose>
       </xsl:attribute>
-      <xsl:apply-templates select="marc:subfield[@code = '0']" mode="idno" />
+      <xsl:apply-templates select="marc:subfield[@code = '0'][1]" mode="ref" />
       <xsl:apply-templates select="marc:subfield[@code = 'a']" mode="term">
         <xsl:with-param name="level">main</xsl:with-param>
       </xsl:apply-templates>
@@ -502,7 +502,7 @@
   </xd:doc>
   <xsl:template match="marc:datafield[@tag = '655']">
     <ref type="Index-Term" subtype="Genre-Term" source="http://id.loc.gov/vocabulary/genreFormSchemes/{string(marc:subfield[@code='2'])}.html">
-      <xsl:apply-templates select="marc:subfield[@code = '0']" mode="idno" />
+      <xsl:apply-templates select="marc:subfield[@code = '0'][1]" mode="ref" />
       <xsl:apply-templates select="marc:subfield[@code = 'a']" mode="term">
         <xsl:with-param name="level">main</xsl:with-param>
       </xsl:apply-templates>
