@@ -64,7 +64,7 @@
         
         <!-- title -->
         <xsl:apply-templates select="marc:datafield[@tag = '245']/*" mode="title" />
-        <xsl:apply-templates select="marc:datafield[@tag = '240']" />
+        <xsl:apply-templates select="marc:datafield[@tag = ('240', '247')]" />
         
         <!-- language(s) -->
         <xsl:if test="marc:datafield[@tag = ('041', '546')]">
@@ -123,8 +123,8 @@
       <xsl:apply-templates select="marc:datafield[@tag = '883']" />
       
       <xsl:apply-templates select="marc:datafield[not(@tag
-        = ('001', '015', '016', '020', '022', '024', '035', '040', '041', '043', '082', '084', '090', '100', '240',
-           '245', '246', '250', '260', '264', '300', '336', '337', '338', '362', '363', '490', '500', '502', '510',
+        = ('001', '015', '016', '020', '022', '024', '028', '035', '040', '041', '043', '082', '084', '090', '100', '240',
+           '245', '246', '247', '250', '260', '264', '300', '336', '337', '338', '362', '363', '490', '500', '502', '510',
            '530',
            '533', '538', '546', '600', '610', '648', '650', '651', '655', '700', '710', '773', '776', '787', '810', '830', '856', '883',
            '912', '924'))]" />
@@ -266,6 +266,20 @@
       <xsl:with-param name="name">title</xsl:with-param>
       <xsl:with-param name="type">Uniform-Title</xsl:with-param>
     </xsl:apply-templates>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>Former Title</xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = '247']">
+    <note type="Former-Title">
+      <xsl:apply-templates select="*[@code = ('a', 'b')]" mode="title" />
+      <xsl:apply-templates select="*[@code = 'f']">
+        <xsl:with-param name="name">note</xsl:with-param>
+        <xsl:with-param name="type">date-sequential</xsl:with-param>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="*[@code = ('n', 'p')]" />
+    </note>
   </xsl:template>
   
   <xd:doc>
