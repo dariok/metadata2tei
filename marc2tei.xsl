@@ -120,7 +120,7 @@
       <xsl:apply-templates select="marc:datafield[@tag = ('700', '710', '730')]"/>
       
       <!-- additional relationship entries -->
-      <xsl:apply-templates select="marc:datafield[@tag = ('770', '772', '773', '776', '780')]" />
+      <xsl:apply-templates select="marc:datafield[@tag = ('770', '772', '773', '776', '780', '785')]" />
       <xsl:apply-templates select="marc:datafield[@tag = '787'][1]" />
       
       <!-- additional metadata entries -->
@@ -130,7 +130,7 @@
         = ('001', '015', '016', '020', '022', '024', '028', '035', '040', '041', '043', '082', '083', '084', '085', '090',
            '100', '240', '245', '246', '247', '250', '260', '264', '300', '336', '337', '338', '362', '363', '490',
            '500', '502', '504', '510', '515', '530', '533', '538', '546', '550', '600', '610', '630', '648', '650',
-           '651', '655', '700', '710', '730', '770', '772', '773', '776', '780', '787', '800', '810', '830', '856', '883', '912', '924'))]" />
+           '651', '655', '700', '710', '730', '770', '772', '773', '776', '780', '785', '787', '800', '810', '830', '856', '883', '912', '924'))]" />
     </biblStruct>
   </xsl:template>
   
@@ -589,7 +589,7 @@
   <xd:doc>
     <xd:desc>Additional Physical Form Entry</xd:desc>
   </xd:doc>
-  <xsl:template match="marc:datafield[@tag = ('770', '772', '773', '776', '780')]">
+  <xsl:template match="marc:datafield[@tag = ('770', '772', '773', '776', '780', '785')]">
     <note type="Linking-Entries">
       <xsl:attribute name="subtype">
         <xsl:choose>
@@ -598,6 +598,7 @@
           <xsl:when test="@tag = '773'">Host-Item-Entry</xsl:when>
           <xsl:when test="@tag = '776'">Additional-Physical-Form</xsl:when>
           <xsl:when test="@tag = '780'">Preceding-Entry</xsl:when>
+          <xsl:when test="@tag = '785'">Succeeding-Entry</xsl:when>
         </xsl:choose>
       </xsl:attribute>
       
