@@ -160,8 +160,7 @@
       </xsl:choose>
     </xsl:variable>
     <xsl:element name="{$name}">
-      <xsl:apply-templates select="(marc:subfield[@code = '0' and contains(., 'DE-588')],
-        marc:subfield[@code = '0' and not(contains(., 'DE-588'))])[1]" />
+      <xsl:apply-templates select="marc:subfield[@code = '0'][1]" mode="ref" />
       <xsl:choose>
         <xsl:when test="$name = 'respStmt'">
           <xsl:attribute name="ana" select="'https://id.loc.gov/vocabulary/relators/' || marc:subfield[@code = '4']" />
@@ -641,40 +640,24 @@
     <xsl:text>] </xsl:text>
   </xsl:template>
   
-  <xd:doc>
-    <xd:desc>
-      <xd:p>Create a URI in the form of {authority}:{identifier} for use in @ref</xd:p>
-    </xd:desc>
-  </xd:doc>
-  <xsl:template match="marc:subfield" mode="ref" as="xs:string">
-    <xsl:variable name="value">
-      <xsl:analyze-string select="." regex="\(([^\)]+)\)(.+)">
-        <xsl:matching-substring>
-          <xsl:call-template name="auth">
-            <xsl:with-param name="code" select="regex-group(1)" />
-          </xsl:call-template>
-          <xsl:text>:</xsl:text>
-          <xsl:value-of select="regex-group(2)"/>
-        </xsl:matching-substring>
-      </xsl:analyze-string>
-    </xsl:variable>
-    <xsl:value-of select="normalize-space($value)"/>
+  <xsl:template match="marc:subfield[@code = '0']">
+    <xsl:message terminate="yes" />
   </xsl:template>
   
   <xd:doc>
-    <xd:desc>
-      <xd:p>Create the value for attribute @ref based on the information in the marc:subfields.</xd:p>
-      <xd:p><xd:b>May be overwritten by importing stylesheets</xd:b> to use their own selection mechanism when multiple
-        subfields are present.</xd:p>
-    </xd:desc>
+    <xd:desc>create an attribute "ref" by converting MARC () notation to URI and concatenating siblings</xd:desc>
   </xd:doc>
-  <xsl:template match="marc:subfield[@code = '0']">
+  <xsl:template match="marc:subfield" mode="ref">
+    <xsl:variable name="code" select="@code" />
+    <xsl:variable name="siblings" select="following-sibling::*[@code = $code]" />
     <xsl:variable name="refs" as="xs:string+">
-      <xsl:apply-templates select="." mode="ref" />
+      <xsl:for-each select=". | $siblings">
+        <xsl:value-of select="translate(., ')(', ':')"/>
+      </xsl:for-each>
     </xsl:variable>
-    <!-- TODO: evaluate MARC field to use a different “prefix” -->
-    <xsl:attribute name="ref"
-      select="'per:' || ($refs[starts-with(., 'gnd')], $refs)[1]"/>
+    <xsl:attribute name="ref">
+      <xsl:value-of select="string-join($refs, ' ')" />
+    </xsl:attribute>
   </xsl:template>
   
   <xd:doc>
@@ -696,7 +679,7 @@
   
   <xd:doc>
     <xd:desc>Create term from a subfield</xd:desc>
-    <xd:param name="lvl">an optional level description (e. g. subordinate unites)</xd:param>
+    <xd:param name="level">an optional level description (e. g. subordinate unites)</xd:param>
   </xd:doc>
   <xsl:template match="marc:subfield" mode="term">
     <xsl:param name="level" />
@@ -763,25 +746,6 @@
     <idno type="issn">
       <xsl:value-of select="."/>
     </idno>
-  </xsl:template>
-  
-  <xd:doc>
-    <xd:desc>
-      <xd:p>Create a short form of and authority based on some form of identifier.</xd:p>
-      <xd:p>Here, German ISIL are used and a few others. <xd:b>May be overwritten by importing stylesheets.</xd:b></xd:p>
-    </xd:desc>
-    <xd:param name="code">
-      <xd:p>The code to be evaluated</xd:p>
-    </xd:param>
-  </xd:doc>
-  <xsl:template name="auth">
-    <xsl:param name="code" />
-    <xsl:choose>
-      <xsl:when test="$code='DE-101'">dnb</xsl:when>
-      <xsl:when test="$code='DE-588'">gnd</xsl:when>
-      <xsl:when test="$code='DE-603'">hebis</xsl:when>
-      <xsl:otherwise>???</xsl:otherwise>
-    </xsl:choose>
   </xsl:template>
   
   <xd:doc>
