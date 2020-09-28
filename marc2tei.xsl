@@ -63,8 +63,6 @@
         <xsl:apply-templates select="marc:datafield[@tag = '100']" />
         <!-- title -->
         <xsl:apply-templates select="marc:datafield[@tag = '245']/*" />
-        <!-- additional responsibility statements (e.g. works of an author in 100, edited by someone -->
-        <xsl:apply-templates select="marc:datafield[@tag = '700']" />
         <!-- language(s) -->
         <xsl:if test="marc:datafield[@tag = ('041', '546')]">
           <textLang>
@@ -109,10 +107,11 @@
       <xsl:apply-templates select="marc:datafield[@tag = ('362', '363')]" />
       <!-- subject fields -->
       <xsl:apply-templates select="marc:datafield[@tag = ('610', '650', '655')]" />
-      <!-- Linking entries-General Information -->
-      <xsl:apply-templates select="marc:datafield[@tag = ('710', '776')]"/>
+      <!-- Additional entries -->
+      <xsl:apply-templates select="marc:datafield[@tag = ('700', '710')]"/>
       
       <!-- additional relationship entries -->
+      <xsl:apply-templates select="marc:datafield[@tag = '776']" />
       <xsl:apply-templates select="marc:datafield[@tag = '787'][1]" />
       
       <!-- additional metadata entries -->
@@ -147,11 +146,10 @@
       <xd:p>Create an author, editor or respStmt element depending on the value of the “function” subfield. Uses the
         content of $e as element name in case an unknown value is encountered so these cases can be caught by schema
         validation.</xd:p>
-      <xd:p>MARC fields 100 and 700 are used.</xd:p>
     </xd:desc>
   </xd:doc>
   <!-- TODO: provide a longer list of values to take care of different languages -->
-  <xsl:template match="marc:datafield[@tag = ('100', '700')]">
+  <xsl:template match="marc:datafield[@tag = ('100')]">
     <xsl:variable name="name">
       <xsl:choose>
         <xsl:when test="marc:subfield[@code = '4'] = ('edt')">editor</xsl:when>
@@ -513,22 +511,35 @@
   </xsl:template>
   
   <xd:doc>
-    <xd:desc>Added Entry – Corporate Name</xd:desc>
+    <xd:desc>Added Entries</xd:desc>
   </xd:doc>
-  <xsl:template match="marc:datafield[@tag = '710']">
-    <note type="Added-Entry-Corporate-Name" source="https://www.loc.gov/standards/sourcelist/name-title.html#{marc:subfield[@code = '2']}">
-      <xsl:if test="marc:subfield[@code = 'a']">
-        <name type="org" subtype="main">
-          <xsl:apply-templates select="marc:subfield[@code = 'a']" />
-        </name>
-      </xsl:if>
-      <xsl:if test="marc:subfield[@code = 'b']">
-        <name type="org" subtype="subordinate">
-          <xsl:apply-templates select="marc:subfield[@code = 'b']" />
-        </name>
-      </xsl:if>
-      <xsl:apply-templates select="marc:subfield[@code = '0']" mode="idno" />
-    </note>
+  <xsl:template match="marc:datafield[@tag = ('700', '710')]">
+    <ref type="Added-Entry" source="https://id.loc.gov/vocabulary/subjectSchemes/{string(marc:subfield[@code='2'])}.html">
+      <xsl:attribute name="subtype">
+        <xsl:choose>
+          <xsl:when test="@tag = '700'">Personal-Name</xsl:when>
+          <xsl:when test="@tag = '710'">Corporate-Name</xsl:when>
+        </xsl:choose>
+      </xsl:attribute>
+      <xsl:apply-templates select="marc:subfield[@code = '0']" mode="ref" />
+      <xsl:apply-templates select="marc:subfield[@code = '4']" mode="relator" />
+      
+      <xsl:apply-templates select="marc:subfield[@code = 'a']" mode="name" />
+      <xsl:apply-templates select="marc:subfield[@code = 'b']" mode="name">
+        <xsl:with-param name="level">
+          <xsl:choose>
+            <xsl:when test="@tag = '700'">numeration</xsl:when>
+            <xsl:when test="@tag = '710'">subordinate</xsl:when>
+          </xsl:choose>
+        </xsl:with-param>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="marc:subfield[@code = 'd']" mode="note">
+        <xsl:with-param name="type">date</xsl:with-param>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="marc:subfield[@code = 'e']" mode="term">
+        <xsl:with-param name="level">relator</xsl:with-param>
+      </xsl:apply-templates>
+    </ref>
   </xsl:template>
   
   <xd:doc>
@@ -670,11 +681,18 @@
       <xsl:attribute name="type">
         <xsl:choose>
           <xsl:when test="parent::*/@tag = ('810', '830')">bibliographic-record-control-number</xsl:when>
-          <xsl:when test="parent::*/@tag = ('082', '084')">authority-record-control-number</xsl:when>
+          <xsl:when test="parent::*/@tag = ('082', '084', '700', '710')">authority-record-control-number</xsl:when>
         </xsl:choose>
       </xsl:attribute>
       <xsl:value-of select="substring-after(., ')')" />
     </idno>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>Create attribute ana from a subfield with a MARC relator</xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:subfield" mode="relator">
+    <xsl:attribute name="ana" select="'https://id.loc.gov/vocabulary/relators/' || ." />
   </xsl:template>
   
   <xd:doc>
@@ -689,6 +707,34 @@
       </xsl:if>
       <xsl:value-of select="." />
     </term>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>Create name from a subfield</xd:desc>
+    <xd:param name="level">an optional level description (e. g. subordinate unites)</xd:param>
+  </xd:doc>
+  <xsl:template match="marc:subfield" mode="name">
+    <xsl:param name="level" />
+    <name>
+      <xsl:if test="$level">
+        <xsl:attribute name="type" select="$level" />
+      </xsl:if>
+      <xsl:value-of select="." />
+    </name>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>Create note from a subfield</xd:desc>
+    <xd:param name="type">an optional type description (e. g. subordinate unites)</xd:param>
+  </xd:doc>
+  <xsl:template match="marc:subfield" mode="note">
+    <xsl:param name="type" />
+    <note>
+      <xsl:if test="$type">
+        <xsl:attribute name="type" select="$type" />
+      </xsl:if>
+      <xsl:value-of select="." />
+    </note>
   </xsl:template>
   
   <xd:doc>
