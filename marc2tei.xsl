@@ -60,7 +60,7 @@
       </xsl:variable>
       <xsl:element name="{$level}">
         <!-- author, editor, respStmt -->
-        <xsl:apply-templates select="marc:datafield[@tag = '100']" />
+        <xsl:apply-templates select="marc:datafield[@tag = ('100', '110')]" />
         
         <!-- title -->
         <xsl:apply-templates select="marc:datafield[@tag = '245']/*" mode="title" />
@@ -128,7 +128,7 @@
       
       <xsl:apply-templates select="marc:datafield[not(@tag
         = ('001', '015', '016', '020', '022', '024', '028', '035', '040', '041', '043', '082', '083', '084', '085',
-           '090', '100', '240', '245', '246', '247', '249', '250', '260', '264', '300', '336', '337', '338', '362', '363',
+           '090', '100', '110', '240', '245', '246', '247', '249', '250', '260', '264', '300', '336', '337', '338', '362', '363',
            '490', '500', '501', '502', '504', '510', '515', '530', '533', '538', '546', '550', '555', '600', '610',
            '630', '648', '650', '651', '655', '700', '710', '730', '770', '772', '773', '776', '780', '785', '787',
            '800', '810', '830', '856', '883', '912', '924'))]" />
@@ -150,45 +150,6 @@
         <xsl:attribute name="xml:id" select="$id" />
       </xsl:if>
     </biblFull>
-  </xsl:template>
-  
-  <xd:doc>
-    <xd:desc>
-      <xd:p>Create an author, editor or respStmt element depending on the value of the “function” subfield. Uses the
-        content of $e as element name in case an unknown value is encountered so these cases can be caught by schema
-        validation.</xd:p>
-    </xd:desc>
-  </xd:doc>
-  <!-- TODO: provide a longer list of values to take care of different languages -->
-  <xsl:template match="marc:datafield[@tag = ('100')]">
-    <xsl:variable name="name">
-      <xsl:choose>
-        <xsl:when test="marc:subfield[@code = '4'] = ('edt')">editor</xsl:when>
-        <xsl:when test="not(marc:subfield[@code = '4']) or marc:subfield[@code = '4'] = 'aut'">author</xsl:when>
-        <xsl:otherwise>respStmt</xsl:otherwise>
-      </xsl:choose>
-    </xsl:variable>
-    <xsl:element name="{$name}">
-      <xsl:apply-templates select="marc:subfield[@code = '0'][1]" mode="ref" />
-      <xsl:choose>
-        <xsl:when test="$name = 'respStmt'">
-          <xsl:attribute name="ana" select="'https://id.loc.gov/vocabulary/relators/' || marc:subfield[@code = '4']" />
-          <xsl:if test="marc:subfield[@code = 'e']">
-            <resp>
-              <xsl:value-of select="marc:subfield[@code = 'e']" />
-            </resp>
-          </xsl:if>
-          <xsl:if test="marc:subfield[@code = 'a']">
-            <name type="person">
-              <xsl:value-of select="marc:subfield[@code = 'a']" />
-            </name>
-          </xsl:if>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:value-of select="marc:subfield[@code = 'a']" />
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:element>
   </xsl:template>
   
   <xd:doc>
@@ -260,6 +221,47 @@
     <ref type="Other-Classification" subtype="{marc:subfield[@code = '2']}" cRef="{marc:subfield[@code = 'a']}">
       <xsl:apply-templates select="marc:subfield[@code = '0']" mode="idno" />
     </ref>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>
+      <xd:p>Create an author, editor or respStmt element depending on the value of the “function” subfield. Uses the
+        content of $e as element name in case an unknown value is encountered so these cases can be caught by schema
+        validation.</xd:p>
+    </xd:desc>
+  </xd:doc>
+  <!-- TODO: provide a longer list of values to take care of different languages -->
+  <xsl:template match="marc:datafield[@tag = ('100', '110')]">
+    <xsl:variable name="name">
+      <xsl:choose>
+        <xsl:when test="marc:subfield[@code = '4'] = ('edt')">editor</xsl:when>
+        <xsl:when test="not(marc:subfield[@code = '4']) or marc:subfield[@code = '4'] = 'aut'">author</xsl:when>
+        <xsl:otherwise>respStmt</xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:variable name="type">
+      <xsl:choose>
+        <xsl:when test="@tag = '100'">per</xsl:when>
+        <xsl:when test="@tag = '110'">org</xsl:when>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:element name="{$name}">
+      <xsl:apply-templates select="marc:subfield[@code = '0'][1]" mode="ref" />
+      <xsl:choose>
+        <xsl:when test="$name = 'respStmt'">
+          <xsl:attribute name="ana" select="'https://id.loc.gov/vocabulary/relators/' || marc:subfield[@code = '4']" />
+          <xsl:apply-templates select="marc:subfield[@code = 'a']" mode="resp">
+            <xsl:with-param name="resp" select="marc:subfield[@code = 'e']" />
+            <xsl:with-param name="type" select="$type" />
+          </xsl:apply-templates>
+        </xsl:when>
+        <xsl:otherwise>
+          <name type="{$type}">
+            <xsl:value-of select="marc:subfield[@code = 'a']" />
+          </name>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:element>
   </xsl:template>
   
   <xd:doc>
