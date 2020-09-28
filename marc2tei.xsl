@@ -62,7 +62,7 @@
         <!-- author, editor, respStmt -->
         <xsl:apply-templates select="marc:datafield[@tag = '100']" />
         <!-- title -->
-        <xsl:apply-templates select="marc:datafield[@tag = '245']/*" />
+        <xsl:apply-templates select="marc:datafield[@tag = '245']/*" mode="title" />
         <!-- language(s) -->
         <xsl:if test="marc:datafield[@tag = ('041', '546')]">
           <textLang>
@@ -73,7 +73,7 @@
               <xsl:attribute name="otherLangs"
                 select="string-join(marc:datafield[@tag = '041']/marc:subfield[@code = 'a' and preceding-sibling::*[@code = 'a']], ' ')" />
             </xsl:if>
-            <xsl:apply-templates select="marc:datafield[@tag = '546']/marc:subfield[@code = 'a']" />
+            <xsl:value-of select="marc:datafield[@tag = '546']/marc:subfield[@code = 'a']" />
           </textLang>
         </xsl:if>
         <!-- ID of this record -->
@@ -182,32 +182,6 @@
   
   <xd:doc>
     <xd:desc>
-      <xd:p>Create a title from a MARC 245 field.</xd:p>
-      <xd:p>$c is not transfomred as tei:respStmt as it cannot be determined whether the contents of $c should actually
-        be put into either author or editor (as mandated by the TEI GL).</xd:p>
-    </xd:desc>
-  </xd:doc>
-  <xsl:template match="marc:datafield[@tag = ('245', '490', '830')]/marc:subfield[not(@code = ('v', 'w', 'x'))]">
-    <title>
-      <xsl:attribute name="type">
-        <xsl:choose>
-          <xsl:when test="@code = 'a'">main</xsl:when>
-          <xsl:when test="@code = 'b'">sub</xsl:when>
-          <xsl:when test="@code = 'c'">resp</xsl:when>
-          <xsl:when test="@code = 'h'">medium</xsl:when>
-          <xsl:when test="@code = 'n'">partNumber</xsl:when>
-          <xsl:when test="@code = 'p'">partName</xsl:when>
-          <xsl:otherwise>
-            <xsl:message terminate="yes" />
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:attribute>
-      <xsl:apply-templates />
-    </title>
-  </xsl:template>
-  
-  <xd:doc>
-    <xd:desc>
       <xd:p>Create an idno for the record.</xd:p>
     </xd:desc>
   </xd:doc>
@@ -284,7 +258,7 @@
   </xd:doc>
   <xsl:template match="marc:datafield[@tag = ('250', 502)]">
     <edition>
-      <xsl:apply-templates select="marc:subfield[@code = 'a']" />
+      <xsl:value-of select="marc:subfield[@code = 'a']" />
     </edition>
   </xsl:template>
   
@@ -327,7 +301,11 @@
   </xd:doc>
   <xsl:template match="marc:datafield[@tag = '490']">
     <series>
-      <xsl:apply-templates />
+      <xsl:apply-templates select="*[@code = ('a', 'v')]" mode="title" />
+      <xsl:apply-templates select="*[@code = 'x']">
+        <xsl:with-param name="name">idno</xsl:with-param>
+        <xsl:with-param name="type">issn</xsl:with-param>
+      </xsl:apply-templates>
     </series>
   </xsl:template>
   
@@ -360,7 +338,7 @@
   <!-- TODO try to parse info in specific subfields, esp. dimensions in $c -->
   <xsl:template match="marc:datafield[@tag = '500']">
     <note>
-      <xsl:apply-templates select="marc:subfield" />
+      <xsl:value-of select="marc:subfield" />
     </note>
   </xsl:template>
   
@@ -374,9 +352,14 @@
       <xsl:if test="marc:subfield[@code = '7']">
         <xsl:attribute name="n" select="marc:subfield[@code = '7']" />
       </xsl:if>
-      <xsl:apply-templates select="marc:subfield[@code = 't']" />
-      <xsl:apply-templates select="marc:subfield[@code = 'a']" />
-      <xsl:apply-templates select="marc:subfield[@code = 'v']" />
+      <xsl:apply-templates select="marc:subfield[@code = 't']">
+        <xsl:with-param name="name">title</xsl:with-param>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="marc:subfield[@code = 'a']">
+        <xsl:with-param name="name">name</xsl:with-param>
+        <xsl:with-param name="type">org</xsl:with-param>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="marc:subfield[@code = 'v']" mode="title" />
       <xsl:apply-templates select="marc:subfield[@code = 'w']" mode="idno" />
     </series>
   </xsl:template>
@@ -427,7 +410,7 @@
   </xd:doc>
   <xsl:template match="marc:datafield[@tag = '362']">
     <note type="Dates-of-Publication">
-      <xsl:apply-templates select="marc:subfield[@code = 'a']" />
+      <xsl:value-of select="marc:subfield[@code = 'a']" />
     </note>
   </xsl:template>
   
@@ -461,7 +444,7 @@
             </xsl:if></xsl:attribute>
         </xsl:when>
       </xsl:choose>
-      <xsl:apply-templates select="marc:subfield[@code = '8']" />
+      <xsl:apply-templates select="marc:subfield[@code = '8']" mode="n" />
       <xsl:value-of select="string-join(marc:subfield[@code = ('a', 'b', 'c', 'd', 'e', 'f')], '-')" />
       <xsl:if test="marc:subfield[@code = ('g', 'h')]">
         <xsl:text>(</xsl:text>
@@ -486,11 +469,13 @@
         </xsl:choose>
       </xsl:attribute>
       <xsl:apply-templates select="marc:subfield[@code = '0'][1]" mode="ref" />
-      <xsl:apply-templates select="marc:subfield[@code = 'a']" mode="term">
-        <xsl:with-param name="level">main</xsl:with-param>
+      <xsl:apply-templates select="marc:subfield[@code = 'a']">
+        <xsl:with-param name="name">term</xsl:with-param>
+        <xsl:with-param name="type">main</xsl:with-param>
       </xsl:apply-templates>
-      <xsl:apply-templates select="marc:subfield[@code = 'b']" mode="term">
-        <xsl:with-param name="level">subordinate</xsl:with-param>
+      <xsl:apply-templates select="marc:subfield[@code = 'b']">
+        <xsl:with-param name="name">term</xsl:with-param>
+        <xsl:with-param name="type">subordinate</xsl:with-param>
       </xsl:apply-templates>
     </ref>
   </xsl:template>
@@ -501,11 +486,13 @@
   <xsl:template match="marc:datafield[@tag = '655']">
     <ref type="Index-Term" subtype="Genre-Term" source="http://id.loc.gov/vocabulary/genreFormSchemes/{string(marc:subfield[@code='2'])}.html">
       <xsl:apply-templates select="marc:subfield[@code = '0'][1]" mode="ref" />
-      <xsl:apply-templates select="marc:subfield[@code = 'a']" mode="term">
-        <xsl:with-param name="level">main</xsl:with-param>
+      <xsl:apply-templates select="marc:subfield[@code = 'a']">
+        <xsl:with-param name="name">term</xsl:with-param>
+        <xsl:with-param name="type">main</xsl:with-param>
       </xsl:apply-templates>
-      <xsl:apply-templates select="marc:subfield[@code = 'b']" mode="term">
-        <xsl:with-param name="level">subordinate</xsl:with-param>
+      <xsl:apply-templates select="marc:subfield[@code = 'b']">
+        <xsl:with-param name="name">term</xsl:with-param>
+        <xsl:with-param name="type">subordinate</xsl:with-param>
       </xsl:apply-templates>
     </ref>
   </xsl:template>
@@ -524,20 +511,25 @@
       <xsl:apply-templates select="marc:subfield[@code = '0']" mode="ref" />
       <xsl:apply-templates select="marc:subfield[@code = '4']" mode="relator" />
       
-      <xsl:apply-templates select="marc:subfield[@code = 'a']" mode="name" />
-      <xsl:apply-templates select="marc:subfield[@code = 'b']" mode="name">
-        <xsl:with-param name="level">
+      <xsl:apply-templates select="marc:subfield[@code = 'a']">
+        <xsl:with-param name="name">name</xsl:with-param>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="marc:subfield[@code = 'b']">
+        <xsl:with-param name="name">name</xsl:with-param>
+        <xsl:with-param name="type">
           <xsl:choose>
             <xsl:when test="@tag = '700'">numeration</xsl:when>
             <xsl:when test="@tag = '710'">subordinate</xsl:when>
           </xsl:choose>
         </xsl:with-param>
       </xsl:apply-templates>
-      <xsl:apply-templates select="marc:subfield[@code = 'd']" mode="note">
+      <xsl:apply-templates select="marc:subfield[@code = 'd']">
+        <xsl:with-param name="name">note</xsl:with-param>
         <xsl:with-param name="type">date</xsl:with-param>
       </xsl:apply-templates>
-      <xsl:apply-templates select="marc:subfield[@code = 'e']" mode="term">
-        <xsl:with-param name="level">relator</xsl:with-param>
+      <xsl:apply-templates select="marc:subfield[@code = 'e']">
+        <xsl:with-param name="name">term</xsl:with-param>
+        <xsl:with-param name="type">relator</xsl:with-param>
       </xsl:apply-templates>
     </ref>
   </xsl:template>
@@ -557,18 +549,23 @@
   </xd:doc>
   <xsl:template match="marc:datafield[@tag = '776']">
     <note type="Additional-Physical-Form">
-      <xsl:if test="marc:subfield[@code = 'i']">
-        <note type="display-text">
-          <xsl:apply-templates select="marc:subfield[@code = 'i']" />
-        </note>
-      </xsl:if>
-      <xsl:apply-templates select="marc:subfield[@code = ('t', 'd')]" />
-      <xsl:if test="marc:subfield[@code = 'h']">
-        <note type="physical-description">
-          <xsl:apply-templates select="marc:subfield[@code = 'h']" />
-        </note>
-      </xsl:if>
-      <xsl:apply-templates select="marc:subfield[@code = 'w']" />
+      <xsl:apply-templates select="marc:subfield[@code = 'i']">
+        <xsl:with-param name="name">note</xsl:with-param>
+        <xsl:with-param name="type">display-text</xsl:with-param>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="marc:subfield[@code = 'a']">
+        <xsl:with-param name="name">name</xsl:with-param>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="marc:subfield[@code = 't']">
+        <xsl:with-param name="name">title</xsl:with-param>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="marc:subfield[@code = 'd']">
+        <xsl:with-param name="name">imprint</xsl:with-param>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="marc:subfield[@code = 'h']">
+        <xsl:with-param name="name">extent</xsl:with-param>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="marc:subfield[@code = 'w']" mode="idno" />
     </note>
   </xsl:template>
   
@@ -597,8 +594,10 @@
           <xsl:value-of select="marc:subfield[@code = 'a']" />
         </author>
       </xsl:if>
-      <xsl:apply-templates select="marc:subfield[@code = 't']" />
-      <xsl:apply-templates select="marc:subfield[@code = 'w']" />
+      <xsl:apply-templates select="marc:subfield[@code = 't']">
+        <xsl:with-param name="name">title</xsl:with-param>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="marc:subfield[@code = 'w']" mode="idno" />
     </bibl>
   </xsl:template>
   
@@ -610,8 +609,7 @@
       <xsl:if test="marc:subfield[@code = '7']">
         <xsl:attribute name="n" select="marc:subfield[@code = '7']" />
       </xsl:if>
-      <xsl:apply-templates select="marc:subfield[@code = 'a']" />
-      <xsl:apply-templates select="marc:subfield[@code = 'v']" />
+      <xsl:apply-templates select="marc:subfield[@code = ('a', 'v')]" mode="title" />
       <xsl:if test="marc:subfield[@code = '9']">
         <biblScope unit="volume-sortable">
           <xsl:value-of select="marc:subfield[@code = '9']" />
@@ -629,7 +627,7 @@
       <xsl:if test="marc:subfield[@code = 'u']">
         <xsl:attribute name="target" select="marc:subfield[@code = 'u']" />
       </xsl:if>
-      <xsl:apply-templates select="marc:subfield[@code = '3']" />
+      <xsl:value-of select="marc:subfield[@code = '3']" />
     </ref>
   </xsl:template>
   
@@ -672,6 +670,23 @@
   </xsl:template>
   
   <xd:doc>
+    <xd:desc>create element from a subfield</xd:desc>
+    <xd:param name="name"><xd:b>required:</xd:b> the name for the element to be created</xd:param>
+    <xd:param name="type"><xd:b>optional:</xd:b> a value for a type attribute</xd:param>
+  </xd:doc>
+  <xsl:template match="marc:subfield">
+    <xsl:param name="name" required="1" />
+    <xsl:param name="type" />
+    
+    <xsl:element name="{$name}">
+      <xsl:if test="$type">
+        <xsl:attribute name="type" select="$type" />
+      </xsl:if>
+      <xsl:value-of select="." />
+    </xsl:element>
+  </xsl:template>
+  
+  <xd:doc>
     <xd:desc>
       <xd:p>create idno from $0</xd:p>
     </xd:desc>
@@ -689,80 +704,56 @@
   </xsl:template>
   
   <xd:doc>
+    <xd:desc>
+      <xd:p>Create a title from a subfield</xd:p>
+      <xd:p>As these usually are considered “title”-fields by the cataloguer, no specialised elemenrs are used.</xd:p>
+    </xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:subfield" mode="title">
+    <title>
+      <xsl:attribute name="type">
+        <xsl:choose>
+          <xsl:when test="@code = 'a'">main</xsl:when>
+          <xsl:when test="@code = 'b'">sub</xsl:when>
+          <xsl:when test="@code = 'c'">resp</xsl:when>
+          <xsl:when test="@code = 'h'">medium</xsl:when>
+          <xsl:when test="@code = 'n'">partNumber</xsl:when>
+          <xsl:when test="@code = 'p'">partName</xsl:when>
+          <xsl:when test="@code = 'v'">sequencial</xsl:when>
+          <xsl:otherwise>
+            <xsl:message terminate="yes" />
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:attribute>
+      <xsl:apply-templates />
+    </title>
+  </xsl:template>
+  
+  <xd:doc>
     <xd:desc>Create attribute ana from a subfield with a MARC relator</xd:desc>
   </xd:doc>
   <xsl:template match="marc:subfield" mode="relator">
     <xsl:attribute name="ana" select="'https://id.loc.gov/vocabulary/relators/' || ." />
   </xsl:template>
   
-  <xd:doc>
-    <xd:desc>Create term from a subfield</xd:desc>
-    <xd:param name="level">an optional level description (e. g. subordinate unites)</xd:param>
-  </xd:doc>
   <xsl:template match="marc:subfield" mode="term">
-    <xsl:param name="level" />
-    <term>
-      <xsl:if test="$level">
-        <xsl:attribute name="type" select="$level" />
-      </xsl:if>
-      <xsl:value-of select="." />
-    </term>
+    <xsl:message terminate="yes" />
   </xsl:template>
   
-  <xd:doc>
-    <xd:desc>Create name from a subfield</xd:desc>
-    <xd:param name="level">an optional level description (e. g. subordinate unites)</xd:param>
-  </xd:doc>
   <xsl:template match="marc:subfield" mode="name">
-    <xsl:param name="level" />
-    <name>
-      <xsl:if test="$level">
-        <xsl:attribute name="type" select="$level" />
-      </xsl:if>
-      <xsl:value-of select="." />
-    </name>
+    <xsl:message terminate="yes" />
   </xsl:template>
   
-  <xd:doc>
-    <xd:desc>Create note from a subfield</xd:desc>
-    <xd:param name="type">an optional type description (e. g. subordinate unites)</xd:param>
-  </xd:doc>
   <xsl:template match="marc:subfield" mode="note">
-    <xsl:param name="type" />
-    <note>
-      <xsl:if test="$type">
-        <xsl:attribute name="type" select="$type" />
-      </xsl:if>
-      <xsl:value-of select="." />
-    </note>
+    <xsl:message terminate="yes" />
   </xsl:template>
   
   <xd:doc>
     <xd:desc>MARC linking subfields</xd:desc>
   </xd:doc>
   <!-- TODO should the exact sequencing be reconstructed using @prev and @next? -->
-  <xsl:template match="marc:subfield[@code = '8']">
+  <xsl:template match="marc:subfield[@code = '8']" mode="n">
     <xsl:attribute name="n" select="normalize-space()" />
-  </xsl:template>
-  
-  <xd:doc>
-    <xd:desc>subfield $d usually contains imprint information</xd:desc>
-  </xd:doc>
-  <xsl:template match="marc:subfield[@code = 'd']">
-    <imprint>
-      <xsl:apply-templates />
-    </imprint>
-  </xsl:template>
-  
-  <xd:doc>
-    <xd:desc>
-      <xd:p>subfield $t usually contains a title</xd:p>
-    </xd:desc>
-  </xd:doc>
-  <xsl:template match="marc:subfield[@code = 't']">
-    <title>
-      <xsl:apply-templates />
-    </title>
   </xsl:template>
   
   <xd:doc>
@@ -776,22 +767,8 @@
     </biblScope>
   </xsl:template>
   
-  <xd:doc>
-    <xd:desc>public and non-public notes</xd:desc>
-  </xd:doc>
   <xsl:template match="marc:subfield[@code = ('x', 'z')][parent::*[not(@tag = '490')]]">
-    <note type="{if (@code = 'x') then 'non-' else ''}public">
-      <xsl:apply-templates />
-    </note>
-  </xsl:template>
-  
-  <xd:doc>
-    <xd:desc>subfield x to ISSN</xd:desc>
-  </xd:doc>
-  <xsl:template match="marc:datafield[@tag = '490']/marc:subfield[@code = 'x']">
-    <idno type="issn">
-      <xsl:value-of select="."/>
-    </idno>
+    <xsl:message terminate="yes" />
   </xsl:template>
   
   <xd:doc>
