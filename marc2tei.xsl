@@ -499,24 +499,17 @@
   </xsl:template>
   
   <xd:doc>
-    <xd:desc>MARC subject fields</xd:desc>
+    <xd:desc>Index Terms</xd:desc>
   </xd:doc>
   <xsl:template match="marc:datafield[@tag = '655']">
-    <ref type="Genre-Term" source="https://www.loc.gov/standards/sourcelist/genre-form.html#{string(marc:subfield[@code='2'])}">
-      <xsl:if test="marc:subfield[@code = '0']">
-        <xsl:attribute name="target">
-          <xsl:variable name="refs" as="xs:string+">
-            <xsl:for-each select="marc:subfield[@code = '0']">
-              <xsl:variable name="val">
-                <xsl:apply-templates select="." mode="ref" />
-              </xsl:variable>
-              <xsl:value-of select="'thi:' || $val" />
-            </xsl:for-each>
-          </xsl:variable>
-          <xsl:value-of select="string-join($refs, ' ')" />
-        </xsl:attribute>
-      </xsl:if>
-      <xsl:apply-templates select="marc:subfield[@code = 'a']" />
+    <ref type="Index-Term" subtype="Genre-Term" source="http://id.loc.gov/vocabulary/genreFormSchemes/{string(marc:subfield[@code='2'])}.html">
+      <xsl:apply-templates select="marc:subfield[@code = '0']" mode="idno" />
+      <xsl:apply-templates select="marc:subfield[@code = 'a']" mode="term">
+        <xsl:with-param name="level">main</xsl:with-param>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="marc:subfield[@code = 'b']" mode="term">
+        <xsl:with-param name="level">subordinate</xsl:with-param>
+      </xsl:apply-templates>
     </ref>
   </xsl:template>
   
