@@ -692,10 +692,6 @@
     <xsl:text>] </xsl:text>
   </xsl:template>
   
-  <xsl:template match="marc:subfield[@code = '0']">
-    <xsl:message terminate="yes" />
-  </xsl:template>
-  
   <xd:doc>
     <xd:desc>create an attribute "ref" by converting MARC () notation to URI and concatenating siblings</xd:desc>
   </xd:doc>
@@ -779,18 +775,6 @@
     <xsl:attribute name="ana" select="'https://id.loc.gov/vocabulary/relators/' || ." />
   </xsl:template>
   
-  <xsl:template match="marc:subfield" mode="term">
-    <xsl:message terminate="yes" />
-  </xsl:template>
-  
-  <xsl:template match="marc:subfield" mode="name">
-    <xsl:message terminate="yes" />
-  </xsl:template>
-  
-  <xsl:template match="marc:subfield" mode="note">
-    <xsl:message terminate="yes" />
-  </xsl:template>
-  
   <xd:doc>
     <xd:desc>MARC linking subfields</xd:desc>
   </xd:doc>
@@ -808,10 +792,6 @@
     <biblScope unit="volume">
       <xsl:value-of select="." />
     </biblScope>
-  </xsl:template>
-  
-  <xsl:template match="marc:subfield[@code = ('x', 'z')][parent::*[not(@tag = '490')]]">
-    <xsl:message terminate="yes" />
   </xsl:template>
   
   <xd:doc>
