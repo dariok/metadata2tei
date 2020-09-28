@@ -478,10 +478,16 @@
   </xsl:template>
   
   <xd:doc>
-    <xd:desc>Subject Added Entry – Corporate Name</xd:desc>
+    <xd:desc>Subject Added Entries</xd:desc>
   </xd:doc>
-  <xsl:template match="marc:datafield[@tag = '610']">
-    <ref type="Subject-Added-Entry" subtype="Corporate-Name" source="https://id.loc.gov/vocabulary/subjectSchemes/{string(marc:subfield[@code='2'])}.html">
+  <xsl:template match="marc:datafield[@tag = ('610', '650')]">
+    <ref type="Subject-Added-Entry" source="https://id.loc.gov/vocabulary/subjectSchemes/{string(marc:subfield[@code='2'])}.html">
+      <xsl:attribute name="subtype">
+        <xsl:choose>
+          <xsl:when test="@tag = '610'">Corporate-Name</xsl:when>
+          <xsl:when test="@tag = '650'">Topical-Term</xsl:when>
+        </xsl:choose>
+      </xsl:attribute>
       <xsl:apply-templates select="marc:subfield[@code = '0']" mode="idno" />
       <xsl:apply-templates select="marc:subfield[@code = 'a']" mode="term">
         <xsl:with-param name="level">main</xsl:with-param>
@@ -489,16 +495,6 @@
       <xsl:apply-templates select="marc:subfield[@code = 'b']" mode="term">
         <xsl:with-param name="level">subordinate</xsl:with-param>
       </xsl:apply-templates>
-    </ref>
-  </xsl:template>
-  
-  <xd:doc>
-    <xd:desc>MARC subject fields</xd:desc>
-  </xd:doc>
-  <xsl:template match="marc:datafield[@tag = '650']">
-    <ref type="Topical-Term" source="https://id.loc.gov/vocabulary/subjectSchemes/{string(marc:subfield[@code='2'])}.html">
-      <xsl:apply-templates select="marc:subfield[@code = '0']" mode="idno" />
-      <xsl:apply-templates select="marc:subfield[@code = 'a']" mode="term" />
     </ref>
   </xsl:template>
   
