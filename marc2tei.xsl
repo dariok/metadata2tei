@@ -61,8 +61,11 @@
       <xsl:element name="{$level}">
         <!-- author, editor, respStmt -->
         <xsl:apply-templates select="marc:datafield[@tag = '100']" />
+        
         <!-- title -->
         <xsl:apply-templates select="marc:datafield[@tag = '245']/*" mode="title" />
+        <xsl:apply-templates select="marc:datafield[@tag = '240']" />
+        
         <!-- language(s) -->
         <xsl:if test="marc:datafield[@tag = ('041', '546')]">
           <textLang>
@@ -118,9 +121,9 @@
       <xsl:apply-templates select="marc:datafield[@tag = '883']" />
       
       <xsl:apply-templates select="marc:datafield[not(@tag
-        = ('001', '015', '016', '020', '022', '024', '035', '040', '041', '043', '082', '084', '090', '100', '245', '250', '260', '264', '300',
-           '336', '337', '338', '362', '363', '490', '500', '502', '546', '600', '610', '650', '655', '700', '710', '773', '776',
-           '787', '810', '830', '856', '883', '924'))]" />
+        = ('001', '015', '016', '020', '022', '024', '035', '040', '041', '043', '082', '084', '090', '100', '240',
+           '245', '250', '260', '264', '300', '336', '337', '338', '362', '363', '490', '500', '502', '546', '600',
+           '610', '650', '655', '700', '710', '773', '776', '787', '810', '830', '856', '883', '924'))]" />
     </biblStruct>
   </xsl:template>
   
@@ -249,6 +252,16 @@
     <ref type="Other-Classification" subtype="{marc:subfield[@code = '2']}" cRef="{marc:subfield[@code = 'a']}">
       <xsl:apply-templates select="marc:subfield[@code = '0']" mode="idno" />
     </ref>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>Uniform Title</xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = '240']">
+    <xsl:apply-templates select="*[@code = 'a']">
+      <xsl:with-param name="name">title</xsl:with-param>
+      <xsl:with-param name="type">Uniform-Title</xsl:with-param>
+    </xsl:apply-templates>
   </xsl:template>
   
   <xd:doc>
