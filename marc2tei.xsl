@@ -111,7 +111,7 @@
       <!-- dates and sequences -->
       <xsl:apply-templates select="marc:datafield[@tag = ('362', '363')]" />
       <!-- subject fields -->
-      <xsl:apply-templates select="marc:datafield[@tag = ('610', '650', '655')]" />
+      <xsl:apply-templates select="marc:datafield[@tag = ('610', '648', '650', '655')]" />
       <!-- Additional entries -->
       <xsl:apply-templates select="marc:datafield[@tag = ('700', '710')]"/>
       
@@ -126,7 +126,7 @@
         = ('001', '015', '016', '020', '022', '024', '035', '040', '041', '043', '082', '084', '090', '100', '240',
            '245', '246', '250', '260', '264', '300', '336', '337', '338', '362', '363', '490', '500', '502', '510',
            '530',
-           '533', '546', '600', '610', '650', '655', '700', '710', '773', '776', '787', '810', '830', '856', '883',
+           '533', '546', '600', '610', '648', '650', '655', '700', '710', '773', '776', '787', '810', '830', '856', '883',
            '912', '924'))]" />
     </biblStruct>
   </xsl:template>
@@ -520,11 +520,12 @@
   <xd:doc>
     <xd:desc>Subject Added Entries</xd:desc>
   </xd:doc>
-  <xsl:template match="marc:datafield[@tag = ('610', '650')]">
+  <xsl:template match="marc:datafield[@tag = ('610', '648', '650')]">
     <ref type="Subject-Added-Entry" source="https://id.loc.gov/vocabulary/subjectSchemes/{string(marc:subfield[@code='2'])}.html">
       <xsl:attribute name="subtype">
         <xsl:choose>
           <xsl:when test="@tag = '610'">Corporate-Name</xsl:when>
+          <xsl:when test="@tag = '648'">Chronological-Term</xsl:when>
           <xsl:when test="@tag = '650'">Topical-Term</xsl:when>
         </xsl:choose>
       </xsl:attribute>
