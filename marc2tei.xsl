@@ -117,7 +117,7 @@
       <xsl:apply-templates select="marc:datafield[@tag = ('610', '630', '648', '650', '651', '655')]" />
       
       <!-- Additional entries -->
-      <xsl:apply-templates select="marc:datafield[@tag = ('700', '710')]"/>
+      <xsl:apply-templates select="marc:datafield[@tag = ('700', '710', '730')]"/>
       
       <!-- additional relationship entries -->
       <xsl:apply-templates select="marc:datafield[@tag = ('772', '773', '776', '780')]" />
@@ -130,7 +130,7 @@
         = ('001', '015', '016', '020', '022', '024', '028', '035', '040', '041', '043', '082', '084', '085', '090',
            '100', '240', '245', '246', '247', '250', '260', '264', '300', '336', '337', '338', '362', '363', '490',
            '500', '502', '504', '510', '515', '530', '533', '538', '546', '550', '600', '610', '630', '648', '650',
-           '651', '655', '700', '710', '772', '773', '776', '780', '787', '800', '810', '830', '856', '883', '912', '924'))]" />
+           '651', '655', '700', '710', '730', '772', '773', '776', '780', '787', '800', '810', '830', '856', '883', '912', '924'))]" />
     </biblStruct>
   </xsl:template>
   
@@ -575,6 +575,15 @@
         <xsl:with-param name="type">relator</xsl:with-param>
       </xsl:apply-templates>
     </ref>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>Added Entry: Uniform Title</xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag ='730']">
+    <note type="Added-Entry" subtype="Uniform-Title">
+      <xsl:value-of select="*[@code = 'a']" />
+    </note>
   </xsl:template>
   
   <xd:doc>
