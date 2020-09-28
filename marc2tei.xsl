@@ -105,7 +105,7 @@
       
       <!-- general annotations – no special TEI elements for these -->
       <!-- Classification numbers -->
-      <xsl:apply-templates select="marc:datafield[@tag = ('082', '084')]" />
+      <xsl:apply-templates select="marc:datafield[@tag = ('082', '083', '084')]" />
       
       <!-- types -->
       <xsl:apply-templates select="marc:datafield[@tag = ('336', '337', '338')]" />
@@ -127,7 +127,7 @@
       <xsl:apply-templates select="marc:datafield[@tag = '883']" />
       
       <xsl:apply-templates select="marc:datafield[not(@tag
-        = ('001', '015', '016', '020', '022', '024', '028', '035', '040', '041', '043', '082', '084', '085', '090',
+        = ('001', '015', '016', '020', '022', '024', '028', '035', '040', '041', '043', '082', '083', '084', '085', '090',
            '100', '240', '245', '246', '247', '250', '260', '264', '300', '336', '337', '338', '362', '363', '490',
            '500', '502', '504', '510', '515', '530', '533', '538', '546', '550', '600', '610', '630', '648', '650',
            '651', '655', '700', '710', '730', '772', '773', '776', '780', '787', '800', '810', '830', '856', '883', '912', '924'))]" />
@@ -238,7 +238,7 @@
   <xd:doc>
     <xd:desc>Classification Numbers: DDC</xd:desc>
   </xd:doc>
-  <xsl:template match="marc:datafield[@tag = ('082')]">
+  <xsl:template match="marc:datafield[@tag = ('082', '083')]">
     <ref type="DDC">
       <xsl:if test="marc:subfield[@code = '2']">
         <xsl:attribute name="subtype" select="'edition_' || marc:subfield[@code = '2']" />
