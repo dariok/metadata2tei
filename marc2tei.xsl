@@ -98,7 +98,7 @@
       <xsl:apply-templates select="marc:datafield[@tag = '856']" />
       
       <!-- additional entries for series -->
-      <xsl:apply-templates select="marc:datafield[@tag = ('810')]" />
+      <xsl:apply-templates select="marc:datafield[@tag = ('800', '810')]" />
       
       <!-- notes -->
       <xsl:apply-templates select="marc:datafield[@tag = ('500', '504', '510', '515', '533', '550')]" />
@@ -130,7 +130,7 @@
         = ('001', '015', '016', '020', '022', '024', '028', '035', '040', '041', '043', '082', '084', '085', '090',
            '100', '240', '245', '246', '247', '250', '260', '264', '300', '336', '337', '338', '362', '363', '490',
            '500', '502', '504', '510', '515', '530', '533', '538', '546', '550', '600', '610', '630', '648', '650',
-           '651', '655', '700', '710', '772', '773', '776', '780', '787', '810', '830', '856', '883', '912', '924'))]" />
+           '651', '655', '700', '710', '772', '773', '776', '780', '787', '800', '810', '830', '856', '883', '912', '924'))]" />
     </biblStruct>
   </xsl:template>
   
@@ -653,22 +653,36 @@
   
   <xd:doc>
     <xd:desc>
-      <xd:p>Create tei:series from MARC 810</xd:p>
+      <xd:p>Series Added Entries</xd:p>
     </xd:desc>
   </xd:doc>
-  <xsl:template match="marc:datafield[@tag = ('810')]">
-    <series>
+  <xsl:template match="marc:datafield[@tag = ('800', '810')]">
+    <note type="Series-Added-Entry">
+      <xsl:attribute name="subtype">
+        <xsl:choose>
+          <xsl:when test="@tag = '800'">Personal-Name</xsl:when>
+          <xsl:when test="@tag = '800'">Corporate-Name</xsl:when>
+        </xsl:choose>
+      </xsl:attribute>
       <xsl:apply-templates select="marc:subfield[@code = '7']" mode="n" />
       
       <xsl:apply-templates select="marc:subfield[@code = 't']">
         <xsl:with-param name="name">title</xsl:with-param>
       </xsl:apply-templates>
       <xsl:apply-templates select="marc:subfield[@code = 'a']" mode="resp">
-        <xsl:with-param name="type">org</xsl:with-param>
+        <xsl:with-param name="type">
+          <xsl:choose>
+            <xsl:when test="@tag = '800'">per</xsl:when>
+            <xsl:when test="@tag = '810'">org</xsl:when>
+          </xsl:choose>
+        </xsl:with-param>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="marc:subfield[@code = 'd']">
+        <xsl:with-param name="name">date</xsl:with-param>
       </xsl:apply-templates>
       <xsl:apply-templates select="marc:subfield[@code = 'v']" mode="title" />
       <xsl:apply-templates select="marc:subfield[@code = 'w']" mode="idno" />
-    </series>
+    </note>
   </xsl:template>
   
   <xd:doc>
@@ -829,7 +843,7 @@
     <xd:desc>MARC linking subfields</xd:desc>
   </xd:doc>
   <!-- TODO should the exact sequencing be reconstructed using @prev and @next? -->
-  <xsl:template match="marc:subfield[@code = '8']" mode="n">
+  <xsl:template match="marc:subfield" mode="n">
     <xsl:attribute name="n" select="normalize-space()" />
   </xsl:template>
   
