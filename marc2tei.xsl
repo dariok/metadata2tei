@@ -80,7 +80,7 @@
         </xsl:if>
         <!-- ID of this record -->
         <xsl:apply-templates select="marc:controlfield[@tag = '001']
-          | marc:datafield[@tag = ('015', '016', '020', '022')]" />
+          | marc:datafield[@tag = ('015', '016', '020', '022', '024')]" />
         <!-- notes -->
         <xsl:apply-templates select="marc:datafield[@tag = ('500')]" />
         <!-- edition -->
@@ -119,7 +119,7 @@
       <xsl:apply-templates select="marc:datafield[@tag = '883']" />
       
       <xsl:apply-templates select="marc:datafield[not(@tag
-        = ('001', '015', '016', '020', '022', '035', '040', '041', '043', '082', '084', '100', '245', '250', '260', '264', '300',
+        = ('001', '015', '016', '020', '022', '024', '035', '040', '041', '043', '082', '084', '100', '245', '250', '260', '264', '300',
           '336', '337', '338', '362', '363', '490', '500', '502', '546', '600', '650', '655', '700', '710', '773', '776',
           '787', '810', '830', '856', '883', '924'))]" />
     </biblStruct>
@@ -239,19 +239,17 @@
   </xsl:template>
   
   <xd:doc>
-    <xd:desc>Crete an idno from MARC 020 (ISBN)</xd:desc>
+    <xd:desc>Standard Identifiers (020, 022, 024)</xd:desc>
   </xd:doc>
-  <xsl:template match="marc:datafield[@tag = '020']">
-    <idno type="isbn">
-      <xsl:value-of select="marc:subfield[@code = 'a']"/>
-    </idno>
-  </xsl:template>
-  
-  <xd:doc>
-    <xd:desc>Crete an idno from MARC 022 (ISSN)</xd:desc>
-  </xd:doc>
-  <xsl:template match="marc:datafield[@tag = '022']">
-    <idno type="issn">
+  <xsl:template match="marc:datafield[@tag = ('020', '022', '024')]">
+    <idno>
+      <xsl:attribute name="type">
+        <xsl:choose>
+          <xsl:when test="@tag = '020'">ISBN</xsl:when>
+          <xsl:when test="@tag = '022'">ISSN</xsl:when>
+          <xsl:when test="@tag = '024'">Other-Standard-Identifier</xsl:when>
+        </xsl:choose>
+      </xsl:attribute>
       <xsl:value-of select="marc:subfield[@code = 'a']"/>
     </idno>
   </xsl:template>
