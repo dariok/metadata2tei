@@ -299,29 +299,16 @@
   </xd:doc>
   <xsl:template match="marc:datafield[@tag = ('260', '264')]">
     <imprint>
-      <xsl:apply-templates select="marc:subfield[@code = 'a']" />
-      <xsl:apply-templates select="marc:subfield[@code = 'b']" />
-      <xsl:apply-templates select="marc:subfield[@code = ('c', '3')]" />
+      <xsl:apply-templates select="marc:subfield[@code = 'a']">
+        <xsl:with-param name="name">pubPlace</xsl:with-param>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="marc:subfield[@code = 'b']">
+        <xsl:with-param name="name">publisher</xsl:with-param>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="marc:subfield[@code = ('c')]">
+        <xsl:with-param name="name">date</xsl:with-param>
+      </xsl:apply-templates>
     </imprint>
-  </xsl:template>
-  
-  <xd:doc>
-    <xd:desc>
-      <xd:p>Create imprint’s contents from MARC 260 or 264 subfields.</xd:p>
-    </xd:desc>
-  </xd:doc>
-  <xsl:template match="marc:datafield[@tag = ('260', '264')]/marc:subfield">
-    <xsl:variable name="name">
-      <xsl:choose>
-        <xsl:when test="@code = 'a'">pubPlace</xsl:when>
-        <xsl:when test="@code = 'b'">publisher</xsl:when>
-        <!-- TODO learn more about the usage of subfield 3 with dates -->
-        <xsl:when test="@code = ('c', '3')">date</xsl:when>
-      </xsl:choose>
-    </xsl:variable>
-    <xsl:element name="{$name}">
-      <xsl:apply-templates />
-    </xsl:element>
   </xsl:template>
   
   <xd:doc>
@@ -343,6 +330,30 @@
       </xsl:attribute>
       <xsl:apply-templates />
     </extent>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>Content Type; Media Type; Carrier Type</xd:desc>
+  </xd:doc>
+  <!-- TODO split multiple values into multiple terms? -->
+  <xsl:template match="marc:datafield[@tag = ('336', '337', '338')]">
+    <xsl:variable name="type">
+      <xsl:choose>
+        <xsl:when test="@tag = '336'">Content-Type</xsl:when>
+        <xsl:when test="@tag = '337'">Media-Type</xsl:when>
+        <xsl:when test="@tag = '338'">Carrier-Type</xsl:when>
+      </xsl:choose>
+    </xsl:variable>
+    <note type="{$type}" source="https://id.loc.gov/vocabulary/genreFormSchemes/{string(marc:subfield[@code='2'])}.html">
+      <xsl:apply-templates select="*[@code = 'a']">
+        <xsl:with-param name="name">term</xsl:with-param>
+        <xsl:with-param name="type">term</xsl:with-param>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="*[@code = 'b']">
+        <xsl:with-param name="name">term</xsl:with-param>
+        <xsl:with-param name="type">code</xsl:with-param>
+      </xsl:apply-templates>
+    </note>
   </xsl:template>
   
   <xd:doc>
@@ -455,34 +466,6 @@
         <xsl:apply-templates />
       </name>
     </respStmt>
-  </xsl:template>
-  
-  <xd:doc>
-    <xd:desc>Content Type;
-             Media Type;
-             Carrier Type</xd:desc>
-  </xd:doc>
-  <!-- TODO split multiple values into multiple terms? -->
-  <xsl:template match="marc:datafield[@tag = ('336', '337', '338')]">
-    <xsl:variable name="type">
-      <xsl:choose>
-        <xsl:when test="@tag = '336'">Content-Type</xsl:when>
-        <xsl:when test="@tag = '337'">Media-Type</xsl:when>
-        <xsl:when test="@tag = '338'">Carrier-Type</xsl:when>
-      </xsl:choose>
-    </xsl:variable>
-    <note type="{$type}" source="https://id.loc.gov/vocabulary/genreFormSchemes/{string(marc:subfield[@code='2'])}.html">
-      <xsl:apply-templates select="marc:subfield[@code != '2']" />
-    </note>
-  </xsl:template>
-  <xd:doc>
-    <xd:desc>subfield of 336, 337, 338 will be terms</xd:desc>
-  </xd:doc>
-  <xsl:template match="marc:datafield[@tag = ('336', '337', '338')]/marc:subfield[@code = ('a', 'b')]">
-    <!-- TODO include full URI for RDA concepts? -->
-    <term type="{if (@code = 'a') then 'term' else 'code'}">
-      <xsl:apply-templates />
-    </term>
   </xsl:template>
   
   <xd:doc>
