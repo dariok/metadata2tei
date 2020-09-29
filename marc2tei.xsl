@@ -248,7 +248,7 @@
       </xsl:choose>
     </xsl:variable>
     <xsl:element name="{$name}">
-      <xsl:apply-templates select="marc:subfield[@code = '0'][1]" mode="target" />
+      <xsl:apply-templates select="marc:subfield[@code = '0'][1]" mode="ref" />
       <xsl:choose>
         <xsl:when test="$name = 'respStmt'">
           <xsl:attribute name="ana" select="'https://id.loc.gov/vocabulary/relators/' || marc:subfield[@code = '4']" />
@@ -764,7 +764,7 @@
   </xsl:template>
   
   <xd:doc>
-    <xd:desc>create an attribute "ref" by converting MARC () notation to URI and concatenating siblings</xd:desc>
+    <xd:desc>create an attribute "target" by converting MARC () notation to URI and concatenating siblings</xd:desc>
   </xd:doc>
   <xsl:template match="marc:subfield" mode="target">
     <xsl:variable name="code" select="@code" />
@@ -775,6 +775,22 @@
       </xsl:for-each>
     </xsl:variable>
     <xsl:attribute name="target">
+      <xsl:value-of select="string-join($refs, ' ')" />
+    </xsl:attribute>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>create an attribute "ref" by converting MARC () notation to URI and concatenating siblings</xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:subfield" mode="ref">
+    <xsl:variable name="code" select="@code" />
+    <xsl:variable name="siblings" select="following-sibling::*[@code = $code]" />
+    <xsl:variable name="refs" as="xs:string+">
+      <xsl:for-each select=". | $siblings">
+        <xsl:value-of select="translate(., ')(', ':')"/>
+      </xsl:for-each>
+    </xsl:variable>
+    <xsl:attribute name="ref">
       <xsl:value-of select="string-join($refs, ' ')" />
     </xsl:attribute>
   </xsl:template>
