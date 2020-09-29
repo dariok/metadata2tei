@@ -624,36 +624,39 @@
           </xsl:apply-templates>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:apply-templates select="marc:subfield[@code = 'i']">
-            <xsl:with-param name="name">note</xsl:with-param>
-            <xsl:with-param name="type">display-text</xsl:with-param>
-          </xsl:apply-templates>
-          <xsl:apply-templates select="marc:subfield[@code = 'a']">
-            <xsl:with-param name="name">title</xsl:with-param>
-            <xsl:with-param name="type">main</xsl:with-param>
-          </xsl:apply-templates>
-          <xsl:apply-templates select="marc:subfield[@code = 'b']">
-            <xsl:with-param name="name">title</xsl:with-param>
-            <xsl:with-param name="type">edition</xsl:with-param>
-          </xsl:apply-templates>
-          <xsl:apply-templates select="marc:subfield[@code = 't']">
-            <xsl:with-param name="name">title</xsl:with-param>
-          </xsl:apply-templates>
-          <xsl:apply-templates select="marc:subfield[@code = 'd']">
-            <xsl:with-param name="name">imprint</xsl:with-param>
-          </xsl:apply-templates>
-          <xsl:apply-templates select="marc:subfield[@code = 'x']">
-            <xsl:with-param name="name">idno</xsl:with-param>
-            <xsl:with-param name="type">issn</xsl:with-param>
-          </xsl:apply-templates>
-          <xsl:apply-templates select="marc:subfield[@code = 'z']">
-            <xsl:with-param name="name">idno</xsl:with-param>
-            <xsl:with-param name="type">isbn</xsl:with-param>
-          </xsl:apply-templates>
-          <xsl:apply-templates select="marc:subfield[@code = 'h']">
-            <xsl:with-param name="name">extent</xsl:with-param>
-          </xsl:apply-templates>
-          <xsl:apply-templates select="marc:subfield[@code = 'w']" mode="idno" />
+          <bibl>
+            <xsl:apply-templates select="marc:subfield[@code = 'i']">
+              <xsl:with-param name="name">note</xsl:with-param>
+              <xsl:with-param name="type">display-text</xsl:with-param>
+            </xsl:apply-templates>
+            <xsl:apply-templates select="marc:subfield[@code = 'a']">
+              <xsl:with-param name="name">title</xsl:with-param>
+              <xsl:with-param name="type">main</xsl:with-param>
+            </xsl:apply-templates>
+            <xsl:apply-templates select="marc:subfield[@code = 'b']">
+              <xsl:with-param name="name">title</xsl:with-param>
+              <xsl:with-param name="type">edition</xsl:with-param>
+            </xsl:apply-templates>
+            <xsl:apply-templates select="marc:subfield[@code = 't']">
+              <xsl:with-param name="name">title</xsl:with-param>
+            </xsl:apply-templates>
+            <xsl:apply-templates select="marc:subfield[@code = 'd']">
+              <xsl:with-param name="name">note</xsl:with-param>
+              <xsl:with-param name="type">imprint</xsl:with-param>
+            </xsl:apply-templates>
+            <xsl:apply-templates select="marc:subfield[@code = 'x']">
+              <xsl:with-param name="name">idno</xsl:with-param>
+              <xsl:with-param name="type">issn</xsl:with-param>
+            </xsl:apply-templates>
+            <xsl:apply-templates select="marc:subfield[@code = 'z']">
+              <xsl:with-param name="name">idno</xsl:with-param>
+              <xsl:with-param name="type">isbn</xsl:with-param>
+            </xsl:apply-templates>
+            <xsl:apply-templates select="marc:subfield[@code = 'h']">
+              <xsl:with-param name="name">extent</xsl:with-param>
+            </xsl:apply-templates>
+            <xsl:apply-templates select="marc:subfield[@code = 'w']" mode="idno" />
+          </bibl>
         </xsl:otherwise>
       </xsl:choose>
     </relatedItem>
