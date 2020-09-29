@@ -9,7 +9,7 @@
   version="3.0">
   
   <xd:doc scope="stylesheet">
-    <xd:desc>Transform a MARC XML record into a tei:biblStruct</xd:desc>
+    <xd:desc>Transform a MARC XML record into a tei:biblStruct or tei:biblFull (= tei:fileDesc)</xd:desc>
   </xd:doc>
   
   <xsl:output indent="1" omit-xml-declaration="1"/>
@@ -59,12 +59,16 @@
         </xsl:choose>
       </xsl:variable>
       <xsl:element name="{$level}">
-        <!-- author, editor, respStmt -->
-        <xsl:apply-templates select="marc:datafield[@tag = ('100', '110')]" />
-        
         <!-- title -->
         <xsl:apply-templates select="marc:datafield[@tag = '245']/*" mode="title" />
         <xsl:apply-templates select="marc:datafield[@tag = ('240', '247')]" />
+        
+        <!-- ID of this record -->
+        <xsl:apply-templates select="marc:controlfield[@tag = '001']
+          | marc:datafield[@tag = ('015', '016', '020', '022', '024')]" />
+        
+        <!-- author, editor, respStmt -->
+        <xsl:apply-templates select="marc:datafield[@tag = ('100', '110')]" />
         
         <!-- language(s) -->
         <xsl:if test="marc:datafield[@tag = ('041', '546')]">
@@ -79,23 +83,19 @@
             <xsl:value-of select="marc:datafield[@tag = '546']/marc:subfield[@code = 'a']" />
           </textLang>
         </xsl:if>
-        <!-- ID of this record -->
-        <xsl:apply-templates select="marc:controlfield[@tag = '001']
-          | marc:datafield[@tag = ('015', '016', '020', '022', '024')]" />
         
         <!-- edition -->
         <xsl:apply-templates select="marc:datafield[@tag = ('250', '502')]" />
+        
         <!-- imprint -->
         <xsl:apply-templates select="marc:datafield[@tag = ('260', '264')]" />
+        
         <!-- extent -->
         <xsl:apply-templates select="marc:datafield[@tag = '300']/*" />
       </xsl:element>
       
-      <!-- TODO series from 760 and 762 -->
       <!-- create series -->
       <xsl:apply-templates select="marc:datafield[@tag = ('490', '773', '830')]" />
-      
-      <xsl:apply-templates select="marc:datafield[@tag = '856']" />
       
       <!-- additional entries for series -->
       <xsl:apply-templates select="marc:datafield[@tag = ('800', '810')]" />
@@ -123,6 +123,8 @@
       <xsl:apply-templates select="marc:datafield[@tag = ('770', '772', '773', '776', '780', '785')]" />
       <xsl:apply-templates select="marc:datafield[@tag = '787'][1]" />
       
+      <!-- Electronic Location and Access -->
+      <xsl:apply-templates select="marc:datafield[@tag = '856']" />
       <!-- additional metadata entries -->
       <xsl:apply-templates select="marc:datafield[@tag = '883']" />
       
