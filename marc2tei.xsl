@@ -63,7 +63,7 @@
           <monogr>
             <!-- title -->
             <xsl:apply-templates select="marc:datafield[@tag = '245']/*" mode="title" />
-            <xsl:apply-templates select="marc:datafield[@tag = ('240', '247')]" />
+            <xsl:apply-templates select="marc:datafield[@tag = ('240')]" />
             
             <!-- ID of this record -->
             <xsl:apply-templates select="marc:controlfield[@tag = '001']
@@ -85,6 +85,8 @@
                 <xsl:value-of select="marc:datafield[@tag = '546']/marc:subfield[@code = 'a']" />
               </textLang>
             </xsl:if>
+            
+            <xsl:apply-templates select="marc:datafield[@tag = ('247')]" />
             
             <!-- edition -->
             <xsl:apply-templates select="marc:datafield[@tag = ('250', '502')]" />
