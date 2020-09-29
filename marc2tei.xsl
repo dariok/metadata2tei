@@ -691,7 +691,7 @@
       <xsl:attribute name="subtype">
         <xsl:choose>
           <xsl:when test="@tag = '800'">Personal-Name</xsl:when>
-          <xsl:when test="@tag = '800'">Corporate-Name</xsl:when>
+          <xsl:when test="@tag = '810'">Corporate-Name</xsl:when>
         </xsl:choose>
       </xsl:attribute>
       <xsl:apply-templates select="marc:subfield[@code = '7']" mode="n" />
