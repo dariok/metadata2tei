@@ -699,7 +699,8 @@
       <xsl:apply-templates select="marc:subfield[@code = 't']">
         <xsl:with-param name="name">title</xsl:with-param>
       </xsl:apply-templates>
-      <xsl:apply-templates select="marc:subfield[@code = 'a']" mode="resp">
+      <xsl:apply-templates select="marc:subfield[@code = 'a']">
+        <xsl:with-param name="name">name</xsl:with-param>
         <xsl:with-param name="type">
           <xsl:choose>
             <xsl:when test="@tag = '800'">per</xsl:when>
