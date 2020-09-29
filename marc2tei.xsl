@@ -720,18 +720,18 @@
     <xd:desc>Series Added Entry – Uniform Title</xd:desc>
   </xd:doc>
   <xsl:template match="marc:datafield[@tag = '830']">
-    <series>
+    <note type="Series-Added-Entry" subtype="Uniform-Title">
       <xsl:if test="marc:subfield[@code = '7']">
         <xsl:attribute name="n" select="marc:subfield[@code = '7']" />
       </xsl:if>
       <xsl:apply-templates select="marc:subfield[@code = ('a', 'v')]" mode="title" />
       <xsl:if test="marc:subfield[@code = '9']">
-        <biblScope unit="volume-sortable">
+        <note type="volume-sortable">
           <xsl:value-of select="marc:subfield[@code = '9']" />
-        </biblScope>
+        </note>
       </xsl:if>
       <xsl:apply-templates select="marc:subfield[@code = 'w']" mode="idno" />
-    </series>
+    </note>
   </xsl:template>
   
   <xd:doc>
