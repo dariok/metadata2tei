@@ -558,7 +558,7 @@
           <xsl:when test="@tag = '710'">Corporate-Name</xsl:when>
         </xsl:choose>
       </xsl:attribute>
-      <xsl:apply-templates select="marc:subfield[@code = '0']" mode="ref" />
+      <xsl:apply-templates select="marc:subfield[@code = '0'][1]" mode="ref" />
       <xsl:apply-templates select="marc:subfield[@code = '4']" mode="relator" />
       
       <xsl:apply-templates select="marc:subfield[@code = 'a']">
@@ -762,7 +762,7 @@
         <xsl:value-of select="translate(., ')(', ':')"/>
       </xsl:for-each>
     </xsl:variable>
-    <xsl:attribute name="ref">
+    <xsl:attribute name="target">
       <xsl:value-of select="string-join($refs, ' ')" />
     </xsl:attribute>
   </xsl:template>
