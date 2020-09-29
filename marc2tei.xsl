@@ -248,7 +248,7 @@
       </xsl:choose>
     </xsl:variable>
     <xsl:element name="{$name}">
-      <xsl:apply-templates select="marc:subfield[@code = '0'][1]" mode="ref" />
+      <xsl:apply-templates select="marc:subfield[@code = '0'][1]" mode="target" />
       <xsl:choose>
         <xsl:when test="$name = 'respStmt'">
           <xsl:attribute name="ana" select="'https://id.loc.gov/vocabulary/relators/' || marc:subfield[@code = '4']" />
@@ -518,7 +518,7 @@
           <xsl:when test="@tag = '651'">Geographic-Name</xsl:when>
         </xsl:choose>
       </xsl:attribute>
-      <xsl:apply-templates select="marc:subfield[@code = '0'][1]" mode="ref" />
+      <xsl:apply-templates select="marc:subfield[@code = '0'][1]" mode="target" />
       <xsl:apply-templates select="marc:subfield[@code = 'a']">
         <xsl:with-param name="name">term</xsl:with-param>
         <xsl:with-param name="type">main</xsl:with-param>
@@ -535,7 +535,7 @@
   </xd:doc>
   <xsl:template match="marc:datafield[@tag = '655']">
     <ref type="Index-Term" subtype="Genre-Term" source="http://id.loc.gov/vocabulary/genreFormSchemes/{string(marc:subfield[@code='2'])}.html">
-      <xsl:apply-templates select="marc:subfield[@code = '0'][1]" mode="ref" />
+      <xsl:apply-templates select="marc:subfield[@code = '0'][1]" mode="target" />
       <xsl:apply-templates select="marc:subfield[@code = 'a']">
         <xsl:with-param name="name">term</xsl:with-param>
         <xsl:with-param name="type">main</xsl:with-param>
@@ -558,7 +558,7 @@
           <xsl:when test="@tag = '710'">Corporate-Name</xsl:when>
         </xsl:choose>
       </xsl:attribute>
-      <xsl:apply-templates select="marc:subfield[@code = '0'][1]" mode="ref" />
+      <xsl:apply-templates select="marc:subfield[@code = '0'][1]" mode="target" />
       <xsl:apply-templates select="marc:subfield[@code = '4']" mode="relator" />
       
       <xsl:apply-templates select="marc:subfield[@code = 'a']">
@@ -597,8 +597,8 @@
     <xd:desc>Additional Physical Form Entry</xd:desc>
   </xd:doc>
   <xsl:template match="marc:datafield[@tag = ('770', '772', '773', '776', '780', '785')]">
-    <note type="Linking-Entries">
-      <xsl:attribute name="subtype">
+    <relatedItem>
+      <xsl:attribute name="type">
         <xsl:choose>
           <xsl:when test="@tag = '770'">Supplement-Entry</xsl:when>
           <xsl:when test="@tag = '772'">Supplementary-Parent-Entry</xsl:when>
@@ -609,32 +609,44 @@
         </xsl:choose>
       </xsl:attribute>
       
-      <xsl:apply-templates select="marc:subfield[@code = 'i']">
-        <xsl:with-param name="name">note</xsl:with-param>
-        <xsl:with-param name="type">display-text</xsl:with-param>
-      </xsl:apply-templates>
-      <xsl:apply-templates select="marc:subfield[@code = 'a']">
-        <xsl:with-param name="name">name</xsl:with-param>
-      </xsl:apply-templates>
-      <xsl:apply-templates select="marc:subfield[@code = 't']">
-        <xsl:with-param name="name">title</xsl:with-param>
-      </xsl:apply-templates>
-      <xsl:apply-templates select="marc:subfield[@code = 'd']">
-        <xsl:with-param name="name">imprint</xsl:with-param>
-      </xsl:apply-templates>
-      <xsl:apply-templates select="marc:subfield[@code = 'x']">
-        <xsl:with-param name="name">idno</xsl:with-param>
-        <xsl:with-param name="type">issn</xsl:with-param>
-      </xsl:apply-templates>
-      <xsl:apply-templates select="marc:subfield[@code = 'z']">
-        <xsl:with-param name="name">idno</xsl:with-param>
-        <xsl:with-param name="type">isbn</xsl:with-param>
-      </xsl:apply-templates>
-      <xsl:apply-templates select="marc:subfield[@code = 'h']">
-        <xsl:with-param name="name">extent</xsl:with-param>
-      </xsl:apply-templates>
-      <xsl:apply-templates select="marc:subfield[@code = 'w']" mode="idno" />
-    </note>
+      <xsl:choose>
+        <xsl:when test="not(*[@code = ('a', 'b', 'd', 't', 'x', 'z', 'h')]) and *[@code = 'w']">
+          <xsl:apply-templates select="*[@code = 'w']" mode="target" />
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:apply-templates select="marc:subfield[@code = 'i']">
+            <xsl:with-param name="name">note</xsl:with-param>
+            <xsl:with-param name="type">display-text</xsl:with-param>
+          </xsl:apply-templates>
+          <xsl:apply-templates select="marc:subfield[@code = 'a']">
+            <xsl:with-param name="name">title</xsl:with-param>
+            <xsl:with-param name="type">main</xsl:with-param>
+          </xsl:apply-templates>
+          <xsl:apply-templates select="marc:subfield[@code = 'b']">
+            <xsl:with-param name="name">title</xsl:with-param>
+            <xsl:with-param name="type">edition</xsl:with-param>
+          </xsl:apply-templates>
+          <xsl:apply-templates select="marc:subfield[@code = 't']">
+            <xsl:with-param name="name">title</xsl:with-param>
+          </xsl:apply-templates>
+          <xsl:apply-templates select="marc:subfield[@code = 'd']">
+            <xsl:with-param name="name">imprint</xsl:with-param>
+          </xsl:apply-templates>
+          <xsl:apply-templates select="marc:subfield[@code = 'x']">
+            <xsl:with-param name="name">idno</xsl:with-param>
+            <xsl:with-param name="type">issn</xsl:with-param>
+          </xsl:apply-templates>
+          <xsl:apply-templates select="marc:subfield[@code = 'z']">
+            <xsl:with-param name="name">idno</xsl:with-param>
+            <xsl:with-param name="type">isbn</xsl:with-param>
+          </xsl:apply-templates>
+          <xsl:apply-templates select="marc:subfield[@code = 'h']">
+            <xsl:with-param name="name">extent</xsl:with-param>
+          </xsl:apply-templates>
+          <xsl:apply-templates select="marc:subfield[@code = 'w']" mode="idno" />
+        </xsl:otherwise>
+      </xsl:choose>
+    </relatedItem>
   </xsl:template>
   
   <xd:doc>
@@ -754,7 +766,7 @@
   <xd:doc>
     <xd:desc>create an attribute "ref" by converting MARC () notation to URI and concatenating siblings</xd:desc>
   </xd:doc>
-  <xsl:template match="marc:subfield" mode="ref">
+  <xsl:template match="marc:subfield" mode="target">
     <xsl:variable name="code" select="@code" />
     <xsl:variable name="siblings" select="following-sibling::*[@code = $code]" />
     <xsl:variable name="refs" as="xs:string+">
