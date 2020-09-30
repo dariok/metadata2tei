@@ -861,32 +861,28 @@
   <xsl:template match="marc:datafield[@tag = '787']">
     <note type="other-relationship">
       <listBibl>
-        <xsl:apply-templates select=". | following-sibling::*[@tag = '787']" mode="bibl" />
+        <xsl:for-each select=". | following-sibling::*[@tag = '787']">
+          <bibl>
+            <xsl:apply-templates select="marc:subfield[@code = 'w']" mode="attribute">
+              <xsl:with-param name="name">source</xsl:with-param>
+            </xsl:apply-templates>
+            <xsl:if test="marc:subfield[@code = 'i']">
+              <note>
+                <xsl:value-of select="marc:subfield[@code = 'i']" />
+              </note>
+            </xsl:if>
+            <xsl:if test="marc:subfield[@code = 'a']">
+              <author>
+                <xsl:value-of select="marc:subfield[@code = 'a']" />
+              </author>
+            </xsl:if>
+            <xsl:apply-templates select="marc:subfield[@code = 't']">
+              <xsl:with-param name="name">title</xsl:with-param>
+            </xsl:apply-templates>
+          </bibl>
+        </xsl:for-each>
       </listBibl>
     </note>
-  </xsl:template>
-  <xd:doc>
-    <xd:desc>listBibl entries for field 77x–78x</xd:desc>
-  </xd:doc>
-  <xsl:template match="marc:datafield" mode="bibl">
-    <bibl>
-      <xsl:apply-templates select="marc:subfield[@code = 'w']" mode="attribute">
-        <xsl:with-param name="name">source</xsl:with-param>
-      </xsl:apply-templates>
-      <xsl:if test="marc:subfield[@code = 'i']">
-        <note>
-          <xsl:value-of select="marc:subfield[@code = 'i']" />
-        </note>
-      </xsl:if>
-      <xsl:if test="marc:subfield[@code = 'a']">
-        <author>
-          <xsl:value-of select="marc:subfield[@code = 'a']" />
-        </author>
-      </xsl:if>
-      <xsl:apply-templates select="marc:subfield[@code = 't']">
-        <xsl:with-param name="name">title</xsl:with-param>
-      </xsl:apply-templates>
-    </bibl>
   </xsl:template>
   
   <xd:doc>
