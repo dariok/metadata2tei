@@ -250,35 +250,24 @@
       <xsl:if test="$id">
         <xsl:attribute name="xml:id" select="$id" />
       </xsl:if>
-      <fileDesc>
-        <titleStmt>
-          <!-- title fields -->
-          <xsl:apply-templates select="*[@tag = '245']/*[@code = 'a']" mode="title" />
-          <xsl:apply-templates select="*[@tag = '245']/*[@code = 'b']" mode="title" />
-        </titleStmt>
-        
-        <editionStmt>
-          <p>meta dataautomatically transformed from MARC21 by https://github.com/dariok/metadata2tei</p>
-        </editionStmt>
-        
-        <publicationStmt>
-          <xsl:variable name="imprints">
-            <xsl:apply-templates select="marc:datafield[@tag = '264']" />
-          </xsl:variable>
-          <xsl:sequence select="$imprints/*/*"></xsl:sequence>
-        </publicationStmt>
-        
-        <sourceDesc>
-          <xsl:apply-templates select="." mode="biblStruct" />
-        </sourceDesc>
-      </fileDesc>
-      <profileDesc>
-        <langUsage>
-          <xsl:for-each select="marc:datafield[@tag = '041']/marc:subfield[@code = 'a']">
-            <language ident="{normalize-space()}" />
-          </xsl:for-each>
-        </langUsage>
-      </profileDesc>
+      
+      <titleStmt>
+        <!-- title fields -->
+        <xsl:apply-templates select="*[@tag = '245']/*[@code = 'a']" mode="title" />
+        <xsl:apply-templates select="*[@tag = '245']/*[@code = 'b']" mode="title" />
+      </titleStmt>
+      
+      <editionStmt>
+        <p>metadata automatically transformed from MARC21 by https://github.com/dariok/metadata2tei</p>
+      </editionStmt>
+      
+      <publicationStmt>
+        <p>Created <xsl:value-of select="current-dateTime()"/>.</p>
+      </publicationStmt>
+      
+      <sourceDesc>
+        <xsl:apply-templates select="." mode="biblStruct" />
+      </sourceDesc>
     </biblFull>
   </xsl:template>
   
