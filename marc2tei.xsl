@@ -199,7 +199,7 @@
       <xsl:apply-templates select="marc:datafield[@tag = ('362', '363')]" />
       
       <!-- subject fields -->
-      <xsl:apply-templates select="marc:datafield[@tag = ('610', '630', '648', '650', '651', '655')]" />
+      <xsl:apply-templates select="marc:datafield[@tag = ('600', '610', '630', '648', '650', '651', '655')]" />
       
       <!-- Additional entries -->
       <xsl:apply-templates select="marc:datafield[@tag = ('700', '710', '730')]"/>
@@ -634,6 +634,37 @@
         <xsl:with-param name="type">physical-description</xsl:with-param>
       </xsl:apply-templates>
     </note>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>Subject Added Entries</xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = ('600')]">
+    <ref type="Subject-Added-Entry" source="https://id.loc.gov/vocabulary/subjectSchemes/{string(marc:subfield[@code='2'])}.html">
+      <xsl:attribute name="subtype">
+        <xsl:choose>
+          <xsl:when test="@tag = '600'">Personal-Name</xsl:when>
+        </xsl:choose>
+      </xsl:attribute>
+      <xsl:apply-templates select="marc:subfield[@code = '0'][1]" mode="attribute">
+        <xsl:with-param name="name">target</xsl:with-param>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="marc:subfield[@code = 'a']">
+        <xsl:with-param name="name">name</xsl:with-param>
+        <xsl:with-param name="type">per</xsl:with-param>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="marc:subfield[@code = 'b']">
+        <xsl:with-param name="name">name</xsl:with-param>
+        <xsl:with-param name="type">numeration</xsl:with-param>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="marc:subfield[@code = 'c']">
+        <xsl:with-param name="name">name</xsl:with-param>
+        <xsl:with-param name="type">titles</xsl:with-param>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="marc:subfield[@code = 'd']">
+        <xsl:with-param name="name">date</xsl:with-param>
+      </xsl:apply-templates>
+    </ref>
   </xsl:template>
   
   <xd:doc>
