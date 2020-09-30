@@ -15,7 +15,7 @@
   <xsl:output indent="1" omit-xml-declaration="1"/>
   
   <xd:doc>
-    <xd:desc>Whether to create a biblStruct or a biblFull</xd:desc>
+    <xd:desc>Whether to create a biblStruct, a biblFull or a fileDesc</xd:desc>
   </xd:doc>
   <xsl:param name="type" />
   
@@ -228,7 +228,7 @@
   
   <xd:doc>
     <xd:desc>
-      <xd:p>Entry point for biblFull.</xd:p>
+      <xd:p>Entry point for biblFull or fileDesc.</xd:p>
     </xd:desc>
     <xd:param name="id">
       <xd:p>If an @xml:id should be set, if can be provided with this param</xd:p>
@@ -236,10 +236,43 @@
   </xd:doc>
   <xsl:template match="marc:record" mode="biblFull">
     <xsl:param name="id" />
+    <xsl:variable name="level">
+      <xsl:variable name="code" select="substring(marc:leader, 8, 1)"/>
+      <xsl:choose>
+        <xsl:when test="$code = 'a'">analytic</xsl:when>
+        <xsl:when test="$code = 'm'">monogr</xsl:when>
+        <xsl:when test="$code = 's'">monogr</xsl:when>
+        <xsl:otherwise>unknown</xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    
     <biblFull>
       <xsl:if test="$id">
         <xsl:attribute name="xml:id" select="$id" />
       </xsl:if>
+      <fileDesc>
+        <titleStmt>
+          <!-- title fields -->
+          <xsl:apply-templates select="*[@tag = '245']/*" mode="title" />
+          
+          <!-- reponsibilities -->
+          <xsl:apply-templates select="*[@tag = ('100', '110')]" />
+          <xsl:apply-templates select="*[@tag = ('700', '710')]" />
+        </titleStmt>
+        <editionStmt /><!-- ? -->
+        <extent /><!-- ? -->
+        <publicationStmt />
+        <seriesStmt /><!-- * -->
+        <notesStmt /><!-- ? -->
+        <sourceDesc /><!-- * -->
+      </fileDesc>
+      <profileDesc />
+      
+      <xsl:apply-templates select="marc:datafield[not(@tag = (
+        '100', '110',
+        '245',
+        '700', '710'
+        ))]" mode="full" />
     </biblFull>
   </xsl:template>
   
@@ -322,7 +355,6 @@
         validation.</xd:p>
     </xd:desc>
   </xd:doc>
-  <!-- TODO: provide a longer list of values to take care of different languages -->
   <xsl:template match="marc:datafield[@tag = ('100', '110')]">
     <xsl:variable name="name">
       <xsl:choose>
@@ -865,7 +897,7 @@
   <xd:doc>
     <xd:desc>Fallback template for all unhandled marc:datafield</xd:desc>
   </xd:doc>
-  <xsl:template match="marc:datafield">
+  <xsl:template match="marc:datafield" mode="#all">
     <xsl:text>[unhandled data field: </xsl:text>
     <xsl:value-of select="@tag"/>
     <xsl:text>] </xsl:text>
