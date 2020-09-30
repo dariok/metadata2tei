@@ -259,9 +259,13 @@
           <xsl:apply-templates select="*[@tag = ('100', '110')]" />
           <xsl:apply-templates select="*[@tag = ('700', '710')]" />
         </titleStmt>
-        <editionStmt /><!-- ? -->
-        <extent /><!-- ? -->
-        <publicationStmt />
+        
+        <xsl:if test="marc:datafield[@tag = ('250', '502')]">
+          <editionStmt>
+            <!-- edition -->
+            <xsl:apply-templates select="marc:datafield[@tag = ('250', '502')]" />
+          </editionStmt>
+        </xsl:if>
         <seriesStmt /><!-- * -->
         <notesStmt /><!-- ? -->
         <sourceDesc /><!-- * -->
@@ -270,7 +274,9 @@
       
       <xsl:apply-templates select="marc:datafield[not(@tag = (
         '100', '110',
-        '245',
+        '245', '250', '264',
+        '300',
+        '502',
         '700', '710'
         ))]" mode="full" />
     </biblFull>
