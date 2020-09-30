@@ -281,18 +281,51 @@
           <xsl:with-param name="name">seriesStmt</xsl:with-param>
         </xsl:apply-templates>
         
-        <notesStmt/><!-- ? -->
+        <notesStmt>
+          <xsl:apply-templates select="marc:datafield[@tag = ('800', '810', '830')]" />
+          
+          <!-- notes -->
+          <xsl:apply-templates select="marc:datafield[@tag = ('500', '501', '504', '510', '515', '520', '533', '550')]" />
+          
+          <!-- general annotations – no special TEI elements for these -->
+          <!-- Classification numbers -->
+          <xsl:apply-templates select="marc:datafield[@tag = ('082', '083', '084')]" />
+          
+          <!-- types -->
+          <xsl:apply-templates select="marc:datafield[@tag = ('336', '337', '338')]" />
+          
+          <!-- dates and sequences -->
+          <xsl:apply-templates select="marc:datafield[@tag = ('362', '363')]" />
+          
+          <!-- subject fields -->
+          <xsl:apply-templates select="marc:datafield[@tag = ('610', '630', '648', '650', '651', '655')]" />
+          
+          <!-- Additional entries -->
+          <xsl:apply-templates select="marc:datafield[@tag = ('730')]"/>
+          
+          <!-- additional relationship entries -->
+          <xsl:apply-templates select="marc:datafield[@tag = ('770', '772', '773', '776', '780', '785')]" />
+          <xsl:apply-templates select="marc:datafield[@tag = '787'][1]" />
+          
+          <!-- Electronic Location and Access -->
+          <xsl:apply-templates select="marc:datafield[@tag = '856']" />
+          <!-- additional metadata entries -->
+          <xsl:apply-templates select="marc:datafield[@tag = '883']" />
+        </notesStmt>
         <sourceDesc /><!-- * -->
       </fileDesc>
       <profileDesc />
       
       <xsl:apply-templates select="marc:datafield[not(@tag = (
+        '082', '083', '084',
         '100', '110',
         '245', '250', '264',
-        '300',
+        '300', '336', '337', '338', '362', '363',
         '490',
-        '502',
-        '700', '710'
+        '500', '501', '502', '504', '510', '515', '520', '533', '550',
+        '610', '630', '648', '650', '651', '655',
+        '700', '710', '730', '770', '772', '773', '776', '780', '785',
+        '800', '810', '830', '856', '883'
         ))]" mode="full" />
     </biblFull>
   </xsl:template>
