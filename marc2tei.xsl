@@ -320,10 +320,16 @@
         <!-- create 1+ sourceDesc in the case of any kind of replicateion
         <sourceDesc /> -->
       </fileDesc>
-      <profileDesc />
+      <profileDesc>
+        <langUsage>
+          <xsl:for-each select="marc:datafield[@tag = '041']/marc:subfield[@code = 'a']">
+            <language ident="{normalize-space()}" />
+          </xsl:for-each>
+        </langUsage>
+      </profileDesc>
       
       <xsl:apply-templates select="marc:datafield[not(@tag = (
-        '015', '016', '020', '022', '024', '026', '035', '040', '082', '083', '084',
+        '015', '016', '020', '022', '024', '026', '035', '040', '041', '082', '083', '084',
         '100', '110',
         '245', '250', '264',
         '300', '336', '337', '338', '362', '363',
