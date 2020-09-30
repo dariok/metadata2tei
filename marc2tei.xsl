@@ -448,11 +448,11 @@
   </xd:doc>
   <xsl:template match="marc:datafield[@tag = ('260', '264')]">
     <imprint>
-      <xsl:apply-templates select="marc:subfield[@code = 'a']">
-        <xsl:with-param name="name">pubPlace</xsl:with-param>
-      </xsl:apply-templates>
       <xsl:apply-templates select="marc:subfield[@code = 'b']">
         <xsl:with-param name="name">publisher</xsl:with-param>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="marc:subfield[@code = 'a']">
+        <xsl:with-param name="name">pubPlace</xsl:with-param>
       </xsl:apply-templates>
       <xsl:apply-templates select="marc:subfield[@code = ('c')]">
         <xsl:with-param name="name">date</xsl:with-param>
