@@ -270,7 +270,12 @@
         <!-- extent -->
         <xsl:apply-templates select="marc:datafield[@tag = '300']/*" />
         
-        <publicationStmt/>
+        <publicationStmt>
+          <xsl:variable name="imprints">
+            <xsl:apply-templates select="marc:datafield[@tag = '264']" />
+          </xsl:variable>
+          <xsl:sequence select="$imprints/*/*"></xsl:sequence>
+        </publicationStmt>
         <seriesStmt /><!-- * -->
         <notesStmt /><!-- ? -->
         <sourceDesc /><!-- * -->
