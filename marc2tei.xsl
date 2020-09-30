@@ -133,21 +133,45 @@
             <xsl:apply-templates select="*[@tag = '773']/*[@code = 'w'][1]" mode="attribute">
               <xsl:with-param name="name">source</xsl:with-param>
             </xsl:apply-templates>
-            <xsl:variable name="monogr">
-              <xsl:apply-templates select="marc:datafield[@tag = '773']" />
-            </xsl:variable>
-            <xsl:sequence select="$monogr//tei:title" />
-            <xsl:sequence select="$monogr//tei:textLang" />
-            <xsl:sequence select="$monogr//tei:author | $monogr//tei:editor | $monogr/tei:respStmt" />
-            <xsl:sequence select="$monogr//tei:note" />
-            <xsl:sequence select="$monogr//tei:edition" />
+            
+            <!-- title fields -->
+            <xsl:apply-templates select="marc:datafield[@tag = '773']/marc:subfield[@code = 'a']">
+              <xsl:with-param name="name">title</xsl:with-param>
+              <xsl:with-param name="type">main</xsl:with-param>
+            </xsl:apply-templates>
+            <xsl:apply-templates select="marc:datafield[@tag = '773']/marc:subfield[@code = 't']">
+              <xsl:with-param name="name">title</xsl:with-param>
+              <xsl:with-param name="type">title</xsl:with-param>
+            </xsl:apply-templates>
+            <xsl:apply-templates select="marc:datafield[@tag = '773']/marc:subfield[@code = 's']">
+              <xsl:with-param name="name">title</xsl:with-param>
+              <xsl:with-param name="type">uniform-title</xsl:with-param>
+            </xsl:apply-templates>
+            
+            <!-- identificator numbers -->
+            <xsl:apply-templates select="marc:datafield[@tag = '773']/marc:subfield[@code = 'x']">
+              <xsl:with-param name="name">idno</xsl:with-param>
+              <xsl:with-param name="type">issn</xsl:with-param>
+            </xsl:apply-templates>
+            <xsl:apply-templates select="marc:datafield[@tag = '773']/marc:subfield[@code = 'z']">
+              <xsl:with-param name="name">idno</xsl:with-param>
+              <xsl:with-param name="type">isbn</xsl:with-param>
+            </xsl:apply-templates>
             
             <!-- edition -->
-            <xsl:apply-templates select="marc:datafield[@tag = ('250', '502')]" />
+            <xsl:apply-templates select="marc:datafield[@tag = '773']/marc:subfield[@code = 'b']">
+              <xsl:with-param name="name">edition</xsl:with-param>
+            </xsl:apply-templates>
+            <xsl:apply-templates select="marc:datafield[@tag = '250']" />
+            
+            <!-- imprint -->
+            <xsl:apply-templates select="marc:datafield[@tag = '773']/marc:subfield[@code = 'd']" mode="imprint"/>
             <xsl:apply-templates select="marc:datafield[@tag = '264']" />
-            <xsl:sequence select="$monogr//tei:extent | $monogr//tei:biblScope" />
             
             <!-- extent -->
+            <xsl:apply-templates select="marc:datafield[@tag = '773']/marc:subfield[@code = 'h']">
+              <xsl:with-param name="name">extent</xsl:with-param>
+            </xsl:apply-templates>
             <xsl:apply-templates select="marc:datafield[@tag = '300']/*" />
           </monogr>
         </xsl:when>
@@ -157,11 +181,9 @@
       </xsl:choose>
       
       
-      <!-- create series -->
-      <xsl:apply-templates select="marc:datafield[@tag = ('490', '773', '830')]" />
-      
-      <!-- additional entries for series -->
-      <xsl:apply-templates select="marc:datafield[@tag = ('800', '810')]" />
+      <!-- series and added entries-->
+      <xsl:apply-templates select="marc:datafield[@tag = ('490')]" />
+      <xsl:apply-templates select="marc:datafield[@tag = ('800', '810', '830')]" />
       
       <!-- notes -->
       <xsl:apply-templates select="marc:datafield[@tag = ('500', '501', '504', '510', '515', '520', '533', '550')]" />
@@ -183,7 +205,11 @@
       <xsl:apply-templates select="marc:datafield[@tag = ('700', '710', '730')]"/>
       
       <!-- additional relationship entries -->
-      <xsl:apply-templates select="marc:datafield[@tag = ('770', '772', '773', '776', '780', '785')]" />
+      <xsl:apply-templates select="marc:datafield[@tag = ('770', '772', '776', '780', '785')]" />
+      <xsl:if test="$level != 'analytic'">
+        <!-- for analytic, 773 will be evaluated as monogr -->
+        <xsl:apply-templates select="marc:datafield[@tag = '773']" />
+      </xsl:if>
       <xsl:apply-templates select="marc:datafield[@tag = '787'][1]" />
       
       <!-- Electronic Location and Access -->
@@ -882,6 +908,7 @@
           <xsl:value-of select="$resp"/>
         </resp>
       </xsl:if>
+  
       <name type="{$type}">
         <xsl:value-of select="." />
       </name>
@@ -921,6 +948,28 @@
       <xsl:value-of select="substring-after(., ')')" />
     </idno>
   </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>Try to parse data of a combined field as imprint</xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:subfield" mode="imprint">
+    <xsl:analyze-string select="." regex="(.*) : (.*), (.*)">
+      <xsl:matching-substring>
+        <imprint>
+          <pubPlace>
+            <xsl:value-of select="regex-group(1)" />
+          </pubPlace>
+          <publisher>
+            <xsl:value-of select="regex-group(2)" />
+          </publisher>
+          <date>
+            <xsl:value-of select="regex-group(3)" />
+          </date>
+        </imprint>
+      </xsl:matching-substring>
+    </xsl:analyze-string>
+  </xsl:template>
+
   
   <xd:doc>
     <xd:desc>
