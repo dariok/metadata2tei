@@ -39,10 +39,10 @@
       </xsl:apply-templates>
     </xsl:for-each>
     
-    <xsl:apply-templates select="tei:titleStmt/tei:title[@type = ('short', 'abbreviated', 'abbrev')]" />
+    <xsl:apply-templates select="tei:title[@type = ('short', 'abbreviated', 'abbrev')]" />
     
     <marc:datafield tag="245" ind1="0" ind2="0">
-      <xsl:apply-templates select="tei:titleStmt/tei:title[not(@type = ('short', 'abbreviated', 'abbrev'))]" />
+      <xsl:apply-templates select="tei:title[not(@type = ('short', 'abbreviated', 'abbrev'))]" />
     </marc:datafield>
   </xsl:template>
   
@@ -95,9 +95,10 @@
     <marc:subfield>
       <xsl:attribute name="code">
         <xsl:choose>
-          <xsl:when test="not(@type) or @type = 'main'">a</xsl:when>
+          <xsl:when test="(not(@type) or @type = 'main') and not(preceding-sibling::tei:title[not(@type) or @type = 'main'])">a</xsl:when>
           <xsl:when test="@type = 'sub'">b</xsl:when>
           <xsl:when test="@type = 'resp'">c</xsl:when>
+          <xsl:otherwise>p</xsl:otherwise>
         </xsl:choose>
       </xsl:attribute>
       <xsl:value-of select="normalize-space()" />
