@@ -277,16 +277,11 @@
           <xsl:sequence select="$imprints/*/*"></xsl:sequence>
         </publicationStmt>
         
-        <xsl:if test="marc:datafield[@tag = '490']">
-          <seriesStmt>
-            <xsl:variable name="series">
-              <xsl:apply-templates select="marc:datafield[@tag = '490']" />
-            </xsl:variable>
-            <xsl:sequence select="$series/*/*" />
-          </seriesStmt>
-        </xsl:if>
+        <xsl:apply-templates select="marc:datafield[@tag = '490']">
+          <xsl:with-param name="name">seriesStmt</xsl:with-param>
+        </xsl:apply-templates>
         
-        <notesStmt /><!-- ? -->
+        <notesStmt/><!-- ? -->
         <sourceDesc /><!-- * -->
       </fileDesc>
       <profileDesc />
@@ -295,6 +290,7 @@
         '100', '110',
         '245', '250', '264',
         '300',
+        '490',
         '502',
         '700', '710'
         ))]" mode="full" />
@@ -577,15 +573,17 @@
     <xd:desc>
       <xd:p>Create a series element for each MARC 490</xd:p>
     </xd:desc>
+    <xd:param name="name">the name for the element: series (default) or seriesStmt</xd:param>
   </xd:doc>
   <xsl:template match="marc:datafield[@tag = '490']">
-    <series>
+    <xsl:param name="name">series</xsl:param>
+    <xsl:element name="{$name}">
       <xsl:apply-templates select="*[@code = ('a', 'v')]" mode="title" />
       <xsl:apply-templates select="*[@code = 'x']">
         <xsl:with-param name="name">idno</xsl:with-param>
         <xsl:with-param name="type">issn</xsl:with-param>
       </xsl:apply-templates>
-    </series>
+    </xsl:element>
   </xsl:template>
   
   <xd:doc>
