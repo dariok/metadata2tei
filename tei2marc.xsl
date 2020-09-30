@@ -25,12 +25,19 @@
   
   <xsl:template match="tei:titleStmt">
     <!-- Main entries: personal name -->
-    <xsl:apply-templates mode="person" 
+    <xsl:for-each 
       select="tei:author[not(@type) or @type = ('per', 'person')] |
               tei:editor[not(@type) or @type = ('per', 'person')] |
               tei:respStmt[descendant::tei:persName or descendant::tei:name[not(@type) or @type = ('per', 'person')]]">
-      <xsl:with-param name="tag">100</xsl:with-param>
-    </xsl:apply-templates>
+      <xsl:apply-templates select="." mode="person">
+        <xsl:with-param name="tag">
+          <xsl:choose>
+            <xsl:when test="position() = 1">100</xsl:when>
+            <xsl:otherwise>700</xsl:otherwise>
+          </xsl:choose>
+        </xsl:with-param>
+      </xsl:apply-templates>
+    </xsl:for-each>
     
     <xsl:apply-templates select="tei:titleStmt/tei:title[@type = ('short', 'abbreviated', 'abbrev')]" />
     
@@ -66,7 +73,7 @@
               <xsl:value-of select="normalize-space()" />
             </marc:subfield>
             <marc:subfield code="e">
-              <xsl:value-of select="normalize-space(string-join(tei:resp, '; '))"/>
+              <xsl:value-of select="normalize-space(parent::*/tei:resp)"/>
             </marc:subfield>
           </marc:datafield>
         </xsl:for-each>
