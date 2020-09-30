@@ -67,7 +67,7 @@
             
             <!-- ID of this record -->
             <xsl:apply-templates select="marc:controlfield[@tag = '001']
-              | marc:datafield[@tag = ('015', '016', '020', '022', '024')]" />
+              | marc:datafield[@tag = ('015', '016', '020', '022', '024', '026')]" />
             
             <!-- author, editor, respStmt -->
             <xsl:apply-templates select="marc:datafield[@tag = ('100', '110')]" />
@@ -192,11 +192,11 @@
       <xsl:apply-templates select="marc:datafield[@tag = '883']" />
       
       <xsl:apply-templates select="marc:datafield[not(@tag
-        = ('001', '015', '016', '020', '022', '024', '028', '035', '040', '041', '043', '050', '082', '083', '084', '085',
-           '090', '100', '110', '240', '245', '246', '247', '249', '250', '260', '264', '300', '336', '337', '338', '362', '363',
-           '490', '500', '501', '502', '504', '510', '515', '520', '530', '533', '538', '546', '550', '555', '600', '610',
-           '630', '648', '650', '651', '655', '700', '710', '730', '770', '772', '773', '776', '780', '785', '787',
-           '800', '810', '830', '856', '883', '912', '924'))]" />
+        = ('001', '015', '016', '020', '022', '024', '026', '028', '035', '040', '041', '043', '050', '082', '083',
+           '084', '085', '090', '100', '110', '240', '245', '246', '247', '249', '250', '260', '264', '300', '336',
+           '337', '338', '362', '363', '490', '500', '501', '502', '504', '510', '515', '520', '530', '533', '538',
+           '546', '550', '555', '600', '610', '630', '648', '650', '651', '655', '700', '710', '730', '770', '772',
+           '773', '776', '780', '785', '787', '800', '810', '830', '856', '883', '912', '924'))]" />
     </biblStruct>
   </xsl:template>
   
@@ -247,15 +247,16 @@
   </xsl:template>
   
   <xd:doc>
-    <xd:desc>Standard Identifiers (020, 022, 024)</xd:desc>
+    <xd:desc>Standard Identifiers (020, 022, 024) and fingerprint (026)</xd:desc>
   </xd:doc>
-  <xsl:template match="marc:datafield[@tag = ('020', '022', '024')]">
+  <xsl:template match="marc:datafield[@tag = ('020', '022', '024', '026')]">
     <idno>
       <xsl:attribute name="type">
         <xsl:choose>
           <xsl:when test="@tag = '020'">ISBN</xsl:when>
           <xsl:when test="@tag = '022'">ISSN</xsl:when>
           <xsl:when test="@tag = '024'">Other-Standard-Identifier</xsl:when>
+          <xsl:when test="@tag = '026'">Fingerprint</xsl:when>
         </xsl:choose>
       </xsl:attribute>
       <xsl:value-of select="marc:subfield[@code = 'a']"/>
@@ -913,7 +914,7 @@
     <idno source="info:isil/{analyze-string(., '\w+-\d+')/*:match[1]}">
       <xsl:attribute name="type">
         <xsl:choose>
-          <xsl:when test="parent::*/@tag = ('810', '830')">bibliographic-record-control-number</xsl:when>
+          <xsl:when test="parent::*/@tag = ('800', '810', '830')">bibliographic-record-control-number</xsl:when>
           <xsl:when test="parent::*/@tag = ('082', '084', '700', '710')">authority-record-control-number</xsl:when>
         </xsl:choose>
       </xsl:attribute>
