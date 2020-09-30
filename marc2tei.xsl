@@ -282,6 +282,10 @@
         </xsl:apply-templates>
         
         <notesStmt>
+          <note type="identification">
+            <xsl:apply-templates select="marc:controlfield[@tag = '001']
+              | marc:datafield[@tag = ('015', '016', '020', '022', '024', '026')]" />
+          </note>
           <xsl:apply-templates select="marc:datafield[@tag = ('800', '810', '830')]" />
           
           <!-- notes -->
@@ -312,12 +316,14 @@
           <!-- additional metadata entries -->
           <xsl:apply-templates select="marc:datafield[@tag = '883']" />
         </notesStmt>
-        <sourceDesc /><!-- * -->
+        
+        <!-- create 1+ sourceDesc in the case of any kind of replicateion
+        <sourceDesc /> -->
       </fileDesc>
       <profileDesc />
       
       <xsl:apply-templates select="marc:datafield[not(@tag = (
-        '082', '083', '084',
+        '015', '016', '020', '022', '024', '026', '035', '040', '082', '083', '084',
         '100', '110',
         '245', '250', '264',
         '300', '336', '337', '338', '362', '363',
@@ -325,7 +331,8 @@
         '500', '501', '502', '504', '510', '515', '520', '533', '550',
         '610', '630', '648', '650', '651', '655',
         '700', '710', '730', '770', '772', '773', '776', '780', '785',
-        '800', '810', '830', '856', '883'
+        '800', '810', '830', '856', '883',
+        '924'
         ))]" mode="full" />
     </biblFull>
   </xsl:template>
