@@ -48,10 +48,16 @@
   
   <xsl:template match="tei:*" mode="person">
     <xsl:param name="tag" required="1" />
+    <xsl:variable name="ind1">
+      <xsl:choose>
+        <xsl:when test="contains(., ', ')">1</xsl:when>
+        <xsl:otherwise>0</xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
     
     <xsl:choose>
       <xsl:when test="self::tei:author">
-        <marc:datafield tag="{$tag}">
+        <marc:datafield tag="{$tag}" ind1="{$ind1}" ind2=" ">
           <marc:subfield code="a">
             <xsl:value-of select="normalize-space()" />
           </marc:subfield>
@@ -59,7 +65,7 @@
         </marc:datafield>
       </xsl:when>
       <xsl:when test="self::tei:editor">
-        <marc:datafield tag="{$tag}">
+        <marc:datafield tag="{$tag}" ind1="{$ind1}" ind2=" ">
           <marc:subfield code="a">
             <xsl:value-of select="normalize-space()" />
           </marc:subfield>
@@ -68,7 +74,7 @@
       </xsl:when>
       <xsl:when test="self::tei:respStmt">
         <xsl:for-each select="tei:name | tei:persName">
-          <marc:datafield tag="{$tag}">
+          <marc:datafield tag="{$tag}" ind1="{$ind1}" ind2=" ">
             <marc:subfield code="a">
               <xsl:value-of select="normalize-space()" />
             </marc:subfield>
