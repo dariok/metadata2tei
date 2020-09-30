@@ -46,6 +46,33 @@
     </marc:datafield>
   </xsl:template>
   
+  <xsl:template match="tei:publicationStmt">
+    <marc:datafield tag="260" ind1=" " ind2=" ">
+      <xsl:apply-templates select="(tei:pubPlace/tei:name | tei:pubPlace)[1]" />
+      <xsl:apply-templates select="(tei:publisher/tei:name | tei:publisher)[1]" />
+      <xsl:apply-templates select="tei:date" />
+    </marc:datafield>
+  </xsl:template>
+  <xsl:template match="tei:publicationStmt//*">
+    <marc:subfield>
+      <xsl:attribute name="code">
+        <xsl:choose>
+          <xsl:when test="ancestor-or-self::tei:pubPlace">a</xsl:when>
+          <xsl:when test="ancestor-or-self::tei:publisher">b</xsl:when>
+          <xsl:when test="ancestor-or-self::tei:date">c</xsl:when>
+        </xsl:choose>
+      </xsl:attribute>
+      <xsl:choose>
+        <xsl:when test="tei:name">
+          <xsl:value-of select="normalize-space(tei:name)"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="normalize-space()" />
+        </xsl:otherwise>
+      </xsl:choose>
+    </marc:subfield>
+  </xsl:template>
+  
   <xsl:template match="tei:*" mode="person">
     <xsl:param name="tag" required="1" />
     <xsl:variable name="ind1">
