@@ -266,6 +266,11 @@
             <xsl:apply-templates select="marc:datafield[@tag = ('250', '502')]" />
           </editionStmt>
         </xsl:if>
+        
+        <!-- extent -->
+        <xsl:apply-templates select="marc:datafield[@tag = '300']/*" />
+        
+        <publicationStmt/>
         <seriesStmt /><!-- * -->
         <notesStmt /><!-- ? -->
         <sourceDesc /><!-- * -->
