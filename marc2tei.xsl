@@ -253,22 +253,13 @@
       <fileDesc>
         <titleStmt>
           <!-- title fields -->
-          <xsl:apply-templates select="*[@tag = '245']/*" mode="title" />
-          
-          <!-- reponsibilities -->
-          <xsl:apply-templates select="*[@tag = ('100', '110')]" />
-          <xsl:apply-templates select="*[@tag = ('700', '710')]" />
+          <xsl:apply-templates select="*[@tag = '245']/*[@code = 'a']" mode="title" />
+          <xsl:apply-templates select="*[@tag = '245']/*[@code = 'b']" mode="title" />
         </titleStmt>
         
-        <xsl:if test="marc:datafield[@tag = ('250', '502')]">
-          <editionStmt>
-            <!-- edition -->
-            <xsl:apply-templates select="marc:datafield[@tag = ('250', '502')]" />
-          </editionStmt>
-        </xsl:if>
-        
-        <!-- extent -->
-        <xsl:apply-templates select="marc:datafield[@tag = '300']/*" />
+        <editionStmt>
+          <p>meta dataautomatically transformed from MARC21 by https://github.com/dariok/metadata2tei</p>
+        </editionStmt>
         
         <publicationStmt>
           <xsl:variable name="imprints">
@@ -277,48 +268,9 @@
           <xsl:sequence select="$imprints/*/*"></xsl:sequence>
         </publicationStmt>
         
-        <xsl:apply-templates select="marc:datafield[@tag = '490']">
-          <xsl:with-param name="name">seriesStmt</xsl:with-param>
-        </xsl:apply-templates>
-        
-        <notesStmt>
-          <note type="identification">
-            <xsl:apply-templates select="marc:controlfield[@tag = '001']
-              | marc:datafield[@tag = ('015', '016', '020', '022', '024', '026')]" />
-          </note>
-          <xsl:apply-templates select="marc:datafield[@tag = ('800', '810', '830')]" />
-          
-          <!-- notes -->
-          <xsl:apply-templates select="marc:datafield[@tag = ('500', '501', '504', '510', '515', '520', '533', '550')]" />
-          
-          <!-- general annotations – no special TEI elements for these -->
-          <!-- Classification numbers -->
-          <xsl:apply-templates select="marc:datafield[@tag = ('082', '083', '084')]" />
-          
-          <!-- types -->
-          <xsl:apply-templates select="marc:datafield[@tag = ('336', '337', '338')]" />
-          
-          <!-- dates and sequences -->
-          <xsl:apply-templates select="marc:datafield[@tag = ('362', '363')]" />
-          
-          <!-- subject fields -->
-          <xsl:apply-templates select="marc:datafield[@tag = ('610', '630', '648', '650', '651', '655')]" />
-          
-          <!-- Additional entries -->
-          <xsl:apply-templates select="marc:datafield[@tag = ('730')]"/>
-          
-          <!-- additional relationship entries -->
-          <xsl:apply-templates select="marc:datafield[@tag = ('770', '772', '773', '776', '780', '785')]" />
-          <xsl:apply-templates select="marc:datafield[@tag = '787'][1]" />
-          
-          <!-- Electronic Location and Access -->
-          <xsl:apply-templates select="marc:datafield[@tag = '856']" />
-          <!-- additional metadata entries -->
-          <xsl:apply-templates select="marc:datafield[@tag = '883']" />
-        </notesStmt>
-        
-        <!-- create 1+ sourceDesc in the case of any kind of replicateion
-        <sourceDesc /> -->
+        <sourceDesc>
+          <xsl:apply-templates select="." mode="biblStruct" />
+        </sourceDesc>
       </fileDesc>
       <profileDesc>
         <langUsage>
@@ -327,19 +279,6 @@
           </xsl:for-each>
         </langUsage>
       </profileDesc>
-      
-      <xsl:apply-templates select="marc:datafield[not(@tag = (
-        '015', '016', '020', '022', '024', '026', '035', '040', '041', '082', '083', '084',
-        '100', '110',
-        '245', '250', '264',
-        '300', '336', '337', '338', '362', '363',
-        '490',
-        '500', '501', '502', '504', '510', '515', '520', '533', '550',
-        '610', '630', '648', '650', '651', '655',
-        '700', '710', '730', '770', '772', '773', '776', '780', '785',
-        '800', '810', '830', '856', '883',
-        '924'
-        ))]" mode="full" />
     </biblFull>
   </xsl:template>
   
