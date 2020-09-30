@@ -276,7 +276,16 @@
           </xsl:variable>
           <xsl:sequence select="$imprints/*/*"></xsl:sequence>
         </publicationStmt>
-        <seriesStmt /><!-- * -->
+        
+        <xsl:if test="marc:datafield[@tag = '490']">
+          <seriesStmt>
+            <xsl:variable name="series">
+              <xsl:apply-templates select="marc:datafield[@tag = '490']" />
+            </xsl:variable>
+            <xsl:sequence select="$series/*/*" />
+          </seriesStmt>
+        </xsl:if>
+        
         <notesStmt /><!-- ? -->
         <sourceDesc /><!-- * -->
       </fileDesc>
