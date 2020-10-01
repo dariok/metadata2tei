@@ -93,6 +93,18 @@
     </xsl:apply-templates>
   </xsl:template>
   
+  <xsl:template match="tei:seriesStmt">
+    <xsl:if test="tei:title | tei:p">
+      <xsl:variable name="ind1" select="count(tei:persName | tei:orgName | tei:name) gt 0" />
+      <marc:datafield tag="490" ind1="{number($ind1)}" ind2=" ">
+        <xsl:apply-templates select="(tei:title | tei:p)[1]" mode="subfield" />
+        <xsl:apply-templates select="tei:idno[matches(., '\d{4}-\d{4}')]" mode="subfield">
+          <xsl:with-param name="x" />
+        </xsl:apply-templates>
+      </marc:datafield>
+    </xsl:if>
+  </xsl:template>
+  
   <xsl:template match="tei:publicationStmt">
     <marc:datafield tag="260" ind1=" " ind2=" ">
       <xsl:apply-templates select="(tei:pubPlace/tei:name | tei:pubPlace)[1]" />
@@ -173,7 +185,7 @@
   <xsl:template match="tei:*" mode="subfield">
     <xsl:param name="code">a</xsl:param>
     <marc:subfield code="{$code}">
-      <xsl:value-of select="." />
+      <xsl:value-of select="normalize-space()" />
     </marc:subfield>
   </xsl:template>
   
