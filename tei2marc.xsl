@@ -24,8 +24,6 @@
         <xsl:text> a22     uu 4500</xsl:text>
       </marc:leader>
       
-      <xsl:apply-templates select="tei:titleStmt" />
-      
       <marc:datafield tag="245" ind1="0" ind2="0">
         <marc:subfield code="a">
           <xsl:value-of select="normalize-space(tei:titleStmt/tei:title[@level = 'a'])" />
@@ -40,6 +38,7 @@
         </marc:datafield>
       </xsl:if>
       
+      <xsl:apply-templates />
     </marc:record>
   </xsl:template>
   
@@ -80,6 +79,18 @@
     </xsl:for-each>
     
     <xsl:apply-templates select="tei:title[@type = ('short', 'abbreviated', 'abbrev')]" />
+  </xsl:template>
+  
+  <xsl:template match="tei:editionStmt">
+    <marc:datafield tag="250" ind1=" " ind2=" ">
+      <xsl:apply-templates select="tei:edition" mode="subfield" />
+    </marc:datafield>
+    <xsl:apply-templates mode="person"
+      select="tei:author[not(@type) or @type = ('per', 'person')] |
+              tei:editor[not(@type) or @type = ('per', 'person')] |
+              tei:respStmt[descendant::tei:persName or descendant::tei:name[not(@type) or @type = ('per', 'person')]]">
+      <xsl:with-param name="tag">700</xsl:with-param>
+    </xsl:apply-templates>
   </xsl:template>
   
   <xsl:template match="tei:publicationStmt">
@@ -157,6 +168,13 @@
         <xsl:message terminate="1" />
       </xsl:otherwise>
     </xsl:choose>
+  </xsl:template>
+  
+  <xsl:template match="tei:*" mode="subfield">
+    <xsl:param name="code">a</xsl:param>
+    <marc:subfield code="{$code}">
+      <xsl:value-of select="." />
+    </marc:subfield>
   </xsl:template>
   
   <xsl:template match="tei:titleStmt/tei:title[@type = ('short', 'abbreviated', 'abbrev')]">
