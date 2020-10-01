@@ -133,7 +133,7 @@
           <xsl:value-of select="normalize-space(tei:name)"/>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:value-of select="normalize-space()" />
+          <xsl:value-of select="normalize-space(string-join(node()[not(self::tei:idno)]))" />
         </xsl:otherwise>
       </xsl:choose>
     </marc:subfield>
