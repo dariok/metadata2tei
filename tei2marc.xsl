@@ -196,6 +196,9 @@
                 <xsl:when test="parent::*/tei:resp/@ref">
                   <xsl:value-of select="parent::*/tei:resp/@ref" />
                 </xsl:when>
+                <xsl:when test="parent::*/tei:resp">
+                  <xsl:value-of select="normalize-space(parent::*/tei:resp)"/>
+                </xsl:when>
                 <xsl:otherwise>edt</xsl:otherwise>
               </xsl:choose>
             </marc:subfield>
