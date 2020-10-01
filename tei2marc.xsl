@@ -95,7 +95,7 @@
   
   <xsl:template match="tei:seriesStmt">
     <xsl:if test="tei:title | tei:p">
-      <xsl:variable name="ind1" select="count(tei:persName | tei:orgName | tei:name) gt 0" />
+      <xsl:variable name="ind1" select="count(tei:editor) gt 0" />
       <marc:datafield tag="490" ind1="{number($ind1)}" ind2=" ">
         <xsl:apply-templates select="(tei:title | tei:p)[1]" mode="subfield" />
         <xsl:apply-templates select="tei:idno[matches(., '\d{4}-\d{4}')]" mode="subfield">
@@ -103,6 +103,13 @@
         </xsl:apply-templates>
       </marc:datafield>
     </xsl:if>
+    
+    <xsl:apply-templates mode="person"
+      select="tei:author[not(@type) or @type = ('per', 'person')] |
+      tei:editor[not(@type) or @type = ('per', 'person')] |
+      tei:respStmt[descendant::tei:persName or descendant::tei:name[not(@type) or @type = ('per', 'person')]]">
+      <xsl:with-param name="tag">800</xsl:with-param>
+    </xsl:apply-templates>
   </xsl:template>
   
   <xsl:template match="tei:publicationStmt">
