@@ -13,8 +13,26 @@
     <xsl:apply-templates select="//tei:teiHeader/tei:fileDesc | //tei:biblStruct | //tei:biblFull" />
   </xsl:template>
   
-  <xsl:template match="tei:fileDesc[descendant::tei:title[@level = 'a'] or descendant::tei:analytic]">
-    
+  <xsl:template match="tei:fileDesc[descendant::tei:title[@level = 'a']]">
+    <marc:record>
+      <marc:leader>
+        <xsl:text>      a</xsl:text>
+        <xsl:choose>
+          <xsl:when test="descendant::tei:analytic or descendant::tei:title[@level = 'a']">a</xsl:when>
+          <xsl:otherwise>m</xsl:otherwise>
+        </xsl:choose>
+        <xsl:text> a22     uu 4500</xsl:text>
+      </marc:leader>
+      
+      <xsl:apply-templates select="tei:titleStmt" />
+      
+      <marc:datafield tag="245" ind1="0" ind2="0">
+        <marc:subfield code="a">
+          <xsl:value-of select="normalize-space(tei:titleStmt/tei:title[@level = 'a'])" />
+        </marc:subfield>
+      </marc:datafield>
+      
+    </marc:record>
   </xsl:template>
   
   <xsl:template match="tei:fileDesc">
@@ -28,6 +46,12 @@
         <xsl:text> a22     uu 4500</xsl:text>
       </marc:leader>
       <xsl:apply-templates />
+      
+      <xsl:if test="tei:titleStmt/tei:title[not(@type = ('short', 'abbreviated', 'abbrev'))]">
+        <marc:datafield tag="245" ind1="0" ind2="0">
+          <xsl:apply-templates select="tei:titleStmt/tei:title[not(@type = ('short', 'abbreviated', 'abbrev'))]" />
+        </marc:datafield>
+      </xsl:if>
     </marc:record>
   </xsl:template>
   
@@ -48,10 +72,6 @@
     </xsl:for-each>
     
     <xsl:apply-templates select="tei:title[@type = ('short', 'abbreviated', 'abbrev')]" />
-    
-    <marc:datafield tag="245" ind1="0" ind2="0">
-      <xsl:apply-templates select="tei:title[not(@type = ('short', 'abbreviated', 'abbrev'))]" />
-    </marc:datafield>
   </xsl:template>
   
   <xsl:template match="tei:publicationStmt">
