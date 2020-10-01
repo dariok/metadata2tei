@@ -118,8 +118,9 @@
       <xsl:apply-templates select="(tei:publisher/tei:name | tei:publisher)[1]" />
       <xsl:apply-templates select="tei:date" />
     </marc:datafield>
+    <xsl:apply-templates select="tei:availability" />
   </xsl:template>
-  <xsl:template match="tei:publicationStmt//*">
+  <xsl:template match="tei:publicationStmt//*[not(self::tei:availability)]">
     <marc:subfield>
       <xsl:attribute name="code">
         <xsl:choose>
@@ -215,5 +216,25 @@
       </xsl:attribute>
       <xsl:value-of select="normalize-space()" />
     </marc:subfield>
+  </xsl:template>
+  
+  <xsl:template match="tei:availability">
+    <marc:datafield tag="506" ind1=" " ind2=" ">
+      <xsl:choose>
+        <xsl:when test="tei:licence/@target">
+          <marc:subfield code="a">
+            <xsl:value-of select="normalize-space(tei:licence)" />
+          </marc:subfield>
+          <marc:subfield code="u">
+            <xsl:value-of select="tei:licence/@target" />
+          </marc:subfield>
+        </xsl:when>
+        <xsl:otherwise>
+          <marc:subfield code="a">
+            <xsl:value-of select="normalize-space()" />
+          </marc:subfield>
+        </xsl:otherwise>
+      </xsl:choose>
+    </marc:datafield>
   </xsl:template>
 </xsl:stylesheet>
