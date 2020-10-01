@@ -32,6 +32,14 @@
         </marc:subfield>
       </marc:datafield>
       
+      <xsl:if test="tei:titleStmt/tei:title[not(@type = ('short', 'abbreviated', 'abbrev'))]">
+        <marc:datafield tag="773" ind1="0" ind2=" ">
+          <marc:subfield code="a">
+            <xsl:value-of select="normalize-space(tei:titleStmt/tei:title[@level = ('s', 'm')])" />
+          </marc:subfield>
+        </marc:datafield>
+      </xsl:if>
+      
     </marc:record>
   </xsl:template>
   
