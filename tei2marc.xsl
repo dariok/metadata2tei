@@ -169,7 +169,17 @@
           <marc:subfield code="a">
             <xsl:value-of select="normalize-space()" />
           </marc:subfield>
-          <marc:subfield code="e">edt</marc:subfield>
+          <marc:subfield code="e">
+            <xsl:choose>
+              <xsl:when test="contains(@role, 'vocabulary/relators/')">
+                <xsl:value-of select="replace(substring-after(@role, 'relators/'), '\.html', '')" />
+              </xsl:when>
+              <xsl:when test="@role">
+                <xsl:value-of select="@role" />
+              </xsl:when>
+              <xsl:otherwise>edt</xsl:otherwise>
+            </xsl:choose>
+          </marc:subfield>
         </marc:datafield>
       </xsl:when>
       <xsl:when test="self::tei:respStmt">
@@ -179,7 +189,15 @@
               <xsl:value-of select="normalize-space()" />
             </marc:subfield>
             <marc:subfield code="e">
-              <xsl:value-of select="normalize-space(parent::*/tei:resp)"/>
+              <xsl:choose>
+                <xsl:when test="contains(parent::*/tei:resp/@ref, 'vocabulary/relators/')">
+                  <xsl:value-of select="replace(substring-after(parent::*/tei:resp/@ref, 'relators/'), '\.html', '')" />
+                </xsl:when>
+                <xsl:when test="parent::*/tei:resp/@ref">
+                  <xsl:value-of select="parent::*/tei:resp/@ref" />
+                </xsl:when>
+                <xsl:otherwise>edt</xsl:otherwise>
+              </xsl:choose>
             </marc:subfield>
           </marc:datafield>
         </xsl:for-each>
