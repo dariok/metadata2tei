@@ -39,6 +39,7 @@
       </xsl:if>
       
       <xsl:apply-templates />
+      <xsl:apply-templates select="../tei:profileDesc" />
     </marc:record>
   </xsl:template>
   
@@ -190,14 +191,14 @@
             </marc:subfield>
             <marc:subfield code="e">
               <xsl:choose>
-                <xsl:when test="contains(parent::*/tei:resp/@ref, 'vocabulary/relators/')">
-                  <xsl:value-of select="replace(substring-after(parent::*/tei:resp/@ref, 'relators/'), '\.html', '')" />
+                <xsl:when test="contains(../tei:resp/@ref, 'vocabulary/relators/')">
+                  <xsl:value-of select="replace(substring-after(../tei:resp/@ref, 'relators/'), '\.html', '')" />
                 </xsl:when>
-                <xsl:when test="parent::*/tei:resp/@ref">
-                  <xsl:value-of select="parent::*/tei:resp/@ref" />
+                <xsl:when test="../tei:resp/@ref">
+                  <xsl:value-of select="../tei:resp/@ref" />
                 </xsl:when>
-                <xsl:when test="parent::*/tei:resp">
-                  <xsl:value-of select="normalize-space(parent::*/tei:resp)"/>
+                <xsl:when test="../tei:resp">
+                  <xsl:value-of select="normalize-space(../tei:resp)"/>
                 </xsl:when>
                 <xsl:otherwise>edt</xsl:otherwise>
               </xsl:choose>
@@ -209,6 +210,10 @@
         <xsl:message terminate="1" />
       </xsl:otherwise>
     </xsl:choose>
+  </xsl:template>
+  
+  <xsl:template match="tei:profileDesc">
+    <xsl:apply-templates select="tei:abstract" />
   </xsl:template>
   
   <xsl:template match="tei:*" mode="subfield">
@@ -256,6 +261,14 @@
           </marc:subfield>
         </xsl:otherwise>
       </xsl:choose>
+    </marc:datafield>
+  </xsl:template>
+  
+  <xsl:template match="tei:abstract">
+    <marc:datafield tag="520" ind1="3" ind2=" ">
+      <marc:subfield code="a">
+        <xsl:value-of select="normalize-space(string-join(node()))" />
+      </marc:subfield>
     </marc:datafield>
   </xsl:template>
 </xsl:stylesheet>
