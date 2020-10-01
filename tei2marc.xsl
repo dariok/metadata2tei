@@ -19,6 +19,14 @@
   
   <xsl:template match="tei:fileDesc">
     <marc:record>
+      <marc:leader>
+        <xsl:text>      a</xsl:text>
+        <xsl:choose>
+          <xsl:when test="descendant::tei:analytic or descendant::tei:title[@level = 'a']">a</xsl:when>
+          <xsl:otherwise>m</xsl:otherwise>
+        </xsl:choose>
+        <xsl:text> a22     uu 4500</xsl:text>
+      </marc:leader>
       <xsl:apply-templates />
     </marc:record>
   </xsl:template>
@@ -71,6 +79,12 @@
         </xsl:otherwise>
       </xsl:choose>
     </marc:subfield>
+  </xsl:template>
+  
+  <xsl:template match="tei:sourceDesc">
+    <xsl:if test="tei:bibl or tei:biblFull">
+      <xsl:apply-templates />
+    </xsl:if>
   </xsl:template>
   
   <xsl:template match="tei:*" mode="person">
