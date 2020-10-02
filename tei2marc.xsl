@@ -206,6 +206,19 @@
           </marc:datafield>
         </xsl:for-each>
       </xsl:when>
+      <xsl:when test="parent::tei:correspAction">
+        <marc:datafield tag="{$tag}" ind1="{$ind1}" ind2=" ">
+          <marc:subfield code="a">
+            <xsl:value-of select="normalize-space()" />
+          </marc:subfield>
+          <marc:subfield code="e">
+            <xsl:choose>
+              <xsl:when test="../@type = 'received'">rcp</xsl:when>
+              <xsl:when test="../@type = 'sent'">aut</xsl:when>
+            </xsl:choose>
+          </marc:subfield>
+        </marc:datafield>
+      </xsl:when>
       <xsl:otherwise>
         <xsl:message terminate="1" />
       </xsl:otherwise>
@@ -213,7 +226,7 @@
   </xsl:template>
   
   <xsl:template match="tei:profileDesc">
-    <xsl:apply-templates select="tei:abstract" />
+    <xsl:apply-templates select="tei:abstract | tei:correspDesc/tei:correspAction" />
   </xsl:template>
   
   <xsl:template match="tei:*" mode="subfield">
@@ -270,5 +283,11 @@
         <xsl:value-of select="normalize-space(string-join(node()))" />
       </marc:subfield>
     </marc:datafield>
+  </xsl:template>
+  
+  <xsl:template match="tei:correspAction">
+    <xsl:apply-templates select="tei:persName" mode="person">
+      <xsl:with-param name="tag">700</xsl:with-param>
+    </xsl:apply-templates>
   </xsl:template>
 </xsl:stylesheet>
