@@ -160,7 +160,7 @@
       <xsl:when test="self::tei:author">
         <marc:datafield tag="{$tag}" ind1="{$ind1}" ind2=" ">
           <marc:subfield code="a">
-            <xsl:value-of select="normalize-space()" />
+            <xsl:value-of select="normalize-space(tei:name | tei:persName | tei:orgName)" />
           </marc:subfield>
           <marc:subfield code="e">aut</marc:subfield>
         </marc:datafield>
@@ -168,7 +168,7 @@
       <xsl:when test="self::tei:editor">
         <marc:datafield tag="{$tag}" ind1="{$ind1}" ind2=" ">
           <marc:subfield code="a">
-            <xsl:value-of select="normalize-space()" />
+            <xsl:value-of select="normalize-space(tei:name | tei:persName | tei:orgName)" />
           </marc:subfield>
           <marc:subfield code="e">
             <xsl:choose>
@@ -187,7 +187,7 @@
         <xsl:for-each select="tei:name | tei:persName">
           <marc:datafield tag="{$tag}" ind1="{$ind1}" ind2=" ">
             <marc:subfield code="a">
-              <xsl:value-of select="normalize-space()" />
+              <xsl:value-of select="normalize-space(tei:name | tei:persName | tei:orgName)" />
             </marc:subfield>
             <marc:subfield code="e">
               <xsl:choose>
