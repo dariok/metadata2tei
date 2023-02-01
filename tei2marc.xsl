@@ -60,6 +60,7 @@
           <xsl:apply-templates select="tei:titleStmt/tei:title[not(@type = ('short', 'abbreviated', 'abbrev'))]" />
         </marc:datafield>
       </xsl:if>
+      <xsl:apply-templates select="../tei:profileDesc" />
     </marc:record>
   </xsl:template>
   
@@ -226,7 +227,16 @@
   </xsl:template>
   
   <xsl:template match="tei:profileDesc">
-    <xsl:apply-templates select="tei:abstract | tei:correspDesc/tei:correspAction" />
+    <xsl:apply-templates select="tei:abstract | tei:correspDesc/tei:correspAction | tei:langUsage/tei:language" />
+  </xsl:template>
+  
+  <xsl:template match="tei:language">
+    <marc:datafield tag="041" ind1=" " inde2="7">
+      <marc:subfield code="a">
+        <xsl:value-of select="@ident"/>
+      </marc:subfield>
+      <marc:subfield code="2">rfc5646</marc:subfield>
+    </marc:datafield>
   </xsl:template>
   
   <xsl:template match="tei:*" mode="subfield">
