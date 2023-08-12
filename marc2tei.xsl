@@ -69,8 +69,19 @@
             <xsl:apply-templates select="marc:controlfield[@tag = '001']
               | marc:datafield[@tag = ('015', '016', '020', '022', '024', '026')]" />
             
-            <!-- author, editor, respStmt -->
+            <!-- author, editor (TEI meaning), respStmt -->
             <xsl:apply-templates select="marc:datafield[@tag = ('100', '110')]" />
+            
+            <!-- editors -->
+            <xsl:if test="marc:datafield[@tag = '700' and marc:subfield[@code = '4'] = 'edt']">
+              <xsl:variable name="editors" select="marc:datafield[@tag = '700' and marc:subfield[@code = '4'] = 'edt']"/>
+              <respStmt>
+                <resp role="https://id.loc.gov/vocabulary/relators/edt">
+                  <xsl:value-of select="$editors[1]/marc:subfield[@code = 'e']" />
+                </resp>
+                <xsl:apply-templates select="$editors" mode="name" />
+              </respStmt>
+            </xsl:if>
             
             <!-- language(s) -->
             <xsl:if test="marc:datafield[@tag = ('041', '546')]">
@@ -969,6 +980,31 @@
         <xsl:value-of select="." />
       </name>
     </respStmt>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>Create a name entry</xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:datafield[@tag = ('700', '710')]" mode="name">
+    <name>
+      <xsl:attribute name="subtype">
+        <xsl:choose>
+          <xsl:when test="@tag = '700'">Personal-Name</xsl:when>
+          <xsl:when test="@tag = '710'">Corporate-Name</xsl:when>
+        </xsl:choose>
+      </xsl:attribute>
+      <xsl:apply-templates select="marc:subfield[@code = '0' and starts-with(., 'http')]" mode="ref" />
+      <xsl:value-of select="marc:subfield[@code = 'a']" />
+    </name>
+  </xsl:template>
+  
+  <xd:doc>
+    <xd:desc>Create a ref attribute</xd:desc>
+  </xd:doc>
+  <xsl:template match="marc:subfield" mode="ref">
+    <xsl:attribute name="ref">
+      <xsl:value-of select="."/>
+    </xsl:attribute>
   </xsl:template>
   
   <xd:doc>
