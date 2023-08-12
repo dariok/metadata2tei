@@ -76,7 +76,7 @@
             <xsl:if test="marc:datafield[@tag = '700' and marc:subfield[@code = '4'] = 'edt']">
               <xsl:variable name="editors" select="marc:datafield[@tag = '700' and marc:subfield[@code = '4'] = 'edt']"/>
               <respStmt>
-                <resp role="https://id.loc.gov/vocabulary/relators/edt">
+                <resp ana="https://id.loc.gov/vocabulary/relators/edt">
                   <xsl:value-of select="$editors[1]/marc:subfield[@code = 'e']" />
                 </resp>
                 <xsl:apply-templates select="$editors" mode="name" />
