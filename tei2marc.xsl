@@ -212,7 +212,7 @@
             <xsl:for-each select="tei:name | tei:persName">
                <marc:datafield tag="{$tag}" ind1="{$ind1}" ind2=" ">
                   <marc:subfield code="a">
-                     <xsl:value-of select="normalize-space(tei:name | tei:persName | tei:orgName)"/>
+                     <xsl:value-of select="normalize-space(.)"/>
                   </marc:subfield>
                   <marc:subfield code="e">
                      <xsl:choose>
