@@ -54,8 +54,8 @@
         <xsl:choose>
           <xsl:when test="$code = 'a'">analytic</xsl:when>
           <xsl:when test="$code = 'm'">monogr</xsl:when>
-          <xsl:when test="$code = 's'">monogr</xsl:when>
-          <xsl:otherwise>unknown</xsl:otherwise>
+          <xsl:when test="$code = 's'">series</xsl:when>
+          <xsl:otherwise>monogr</xsl:otherwise>
         </xsl:choose>
       </xsl:variable>
       <xsl:choose>
@@ -425,7 +425,7 @@
       <xd:p>Information about the edition, created from MARC 205 (edition) or 502 (dissertation)</xd:p>
     </xd:desc>
   </xd:doc>
-  <xsl:template match="marc:datafield[@tag = ('250', 502)]">
+  <xsl:template match="marc:datafield[@tag = ('250', '502')]">
     <edition>
       <xsl:value-of select="marc:subfield[@code = 'a']" />
     </edition>
