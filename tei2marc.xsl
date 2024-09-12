@@ -36,19 +36,34 @@
 
          <marc:datafield tag="245" ind1="1" ind2="0">
             <marc:subfield code="a">
-               <xsl:value-of select="normalize-space(tei:titleStmt/tei:title[@level = 'a'])"/>
+               <xsl:value-of select="normalize-space((tei:titleStmt/tei:title[@level = 'a'], tei:titleStmt/tei:title[1])[1])"/>
             </marc:subfield>
          </marc:datafield>
 
          <xsl:if test="tei:titleStmt/tei:title[not(@type = ('short', 'abbreviated', 'abbrev'))]">
             <marc:datafield tag="773" ind1="0" ind2="#">
-               <xsl:apply-templates select="tei:sourceDesc//tei:biblScope[@unit = 'issue']" mode="g"/>
+               <xsl:variable name="volumeIssue" as="xs:string+">
+                  <xsl:apply-templates select="tei:sourceDesc//tei:biblScope[@unit = 'volume']" mode="g"/>
+                  <xsl:apply-templates select="tei:sourceDesc//tei:biblScope[@unit = 'issue']" mode="g"/>
+                  <xsl:apply-templates select="tei:sourceDesc//tei:biblScope[@unit = 'year']" mode="g"/>
+               </xsl:variable>
+               <xsl:if test="count($volumeIssue) gt 0">
+                  <marc:subfield code="g">
+                     <xsl:value-of select="string-join($volumeIssue, ' ')" />
+                  </marc:subfield>
+               </xsl:if>
+               
+               <xsl:apply-templates select="tei:sourceDesc//tei:title[@type = 'abbr']" />
+               
                <marc:subfield code="t">
                   <xsl:value-of select="
                         normalize-space(
                         (tei:titleStmt/tei:title[@level = ('s', 'm')], tei:sourceDesc//tei:title[@level = ('s', 'j')])[1]
                         )"/>
                </marc:subfield>
+               
+               <xsl:apply-templates select="//tei:sourceDesc//tei:idno[@type = 'ISSN']" />
+               <xsl:apply-templates select="//tei:sourceDesc//tei:idno[@type = 'PPN']" />
             </marc:datafield>
          </xsl:if>
 
@@ -56,11 +71,37 @@
          <xsl:apply-templates select="../tei:profileDesc"/>
       </marc:record>
    </xsl:template>
-
-   <xsl:template match="tei:biblScope" mode="g">
-      <marc:subfield code="g">
-         <xsl:apply-templates/>
+   
+   <xsl:template match="tei:title[@type = 'abbr']">
+      <marc:subfield code="p">
+         <xsl:value-of select="."/>
       </marc:subfield>
+   </xsl:template>
+   
+   <xsl:template match="tei:idno[@type = 'ISSN']">
+      <marc:subfield code="x">
+         <xsl:value-of select="."/>
+      </marc:subfield>
+   </xsl:template>
+   
+   <xsl:template match="tei:idno[@type = 'PPN']">
+      <marc:subfield code="w">
+         <xsl:value-of select="."/>
+      </marc:subfield>
+   </xsl:template>
+
+   <xsl:template match="tei:biblScope" mode="g" as="xs:string">
+      <xsl:choose>
+         <xsl:when test="@unit = 'issue'">
+            <xsl:value-of select="'Issue ' || ."/>
+         </xsl:when>
+         <xsl:when test="@unit = 'volume'">
+            <xsl:value-of select="'Vol. ' || ." />
+         </xsl:when>
+         <xsl:when test="@unit = 'year'">
+            <xsl:value-of select="'(' || . || ')'"/>
+         </xsl:when>
+      </xsl:choose>
    </xsl:template>
 
    <xsl:template match="tei:fileDesc">
@@ -143,9 +184,34 @@
          <xsl:apply-templates select="(tei:publisher/tei:name | tei:publisher)[1]"/>
          <xsl:apply-templates select="tei:date"/>
       </marc:datafield>
-      <xsl:apply-templates select="tei:availability"/>
+      <xsl:apply-templates select="tei:availability, tei:idno"/>
    </xsl:template>
-   <xsl:template match="tei:publicationStmt//*[not(self::tei:availability)]">
+   
+   <xsl:template match="tei:publicationStmt/tei:idno">
+      <marc:datafield tag="856" ind1="4" ind2="0">
+         <marc:subfield code="u">
+            <xsl:text>https://purl.ulb.tu-darmstadt.de/v</xsl:text>
+            <xsl:value-of select="substring(., 1, 1)" />
+            <xsl:text>/</xsl:text>
+            <xsl:value-of select="substring(., 2)" />
+         </marc:subfield>
+         <marc:subfield code="q">text/html</marc:subfield>
+         <marc:subfield code="r">
+            <xsl:value-of select="../tei:availability/tei:licence/@target" />
+         </marc:subfield>
+         <marc:subfield code="t">
+            <xsl:value-of select="../tei:availability/tei:licence" />
+         </marc:subfield>
+         <marc:subfield code="7">
+            <xsl:choose>
+               <xsl:when test="../tei:availability/tei:licence = ('CC By-SA 4.0', 'CC 0')">0</xsl:when>
+               <xsl:otherwise>u</xsl:otherwise>
+            </xsl:choose>
+         </marc:subfield>
+      </marc:datafield>
+   </xsl:template>
+   
+   <xsl:template match="tei:publicationStmt//*[not(self::tei:availability or self::tei:idno)]">
       <marc:subfield>
          <xsl:attribute name="code">
             <xsl:choose>
@@ -187,6 +253,7 @@
                   <xsl:value-of select="normalize-space(tei:name | tei:persName | tei:orgName)"/>
                </marc:subfield>
                <marc:subfield code="e">aut</marc:subfield>
+               <xsl:apply-templates select="@ref" />
             </marc:datafield>
          </xsl:when>
          <xsl:when test="self::tei:editor">
@@ -206,6 +273,7 @@
                      <xsl:otherwise>edt</xsl:otherwise>
                   </xsl:choose>
                </marc:subfield>
+               <xsl:apply-templates select="@ref" />
             </marc:datafield>
          </xsl:when>
          <xsl:when test="self::tei:respStmt">
@@ -230,6 +298,7 @@
                         <xsl:otherwise>edt</xsl:otherwise>
                      </xsl:choose>
                   </marc:subfield>
+                  <xsl:apply-templates select="@ref" />
                </marc:datafield>
             </xsl:for-each>
          </xsl:when>
@@ -250,6 +319,33 @@
             <xsl:message terminate="1"/>
          </xsl:otherwise>
       </xsl:choose>
+   </xsl:template>
+   
+   <xsl:template match="@ref">
+      <xsl:variable name="content">
+         <xsl:choose>
+            <xsl:when test="starts-with(., '#')">
+               <xsl:variable name="target" select="id(substring(., 2))"/>
+               <xsl:apply-templates select="$target/tei:idno" />
+            </xsl:when>
+            <xsl:otherwise>
+               <xsl:value-of select="."/>
+            </xsl:otherwise>
+         </xsl:choose>
+      </xsl:variable>
+      
+      <xsl:if test="string-length($content) gt 0">
+         <marc:subfield>
+            <xsl:attribute name="code">
+               <xsl:choose>
+                  <xsl:when test="contains($content, 'gnd') or contains($content, 'GND')">0</xsl:when>
+                  <xsl:when test="contains($content, 'orcid')">1</xsl:when>
+                  <xsl:otherwise>1</xsl:otherwise>
+               </xsl:choose>
+            </xsl:attribute>
+            <xsl:value-of select="$content"/>
+         </marc:subfield>
+      </xsl:if>
    </xsl:template>
 
    <xsl:template match="tei:profileDesc">
