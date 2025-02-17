@@ -4,7 +4,7 @@
    xmlns:xd="http://www.oxygenxml.com/ns/doc/xsl" xmlns:xs="http://www.w3.org/2001/XMLSchema"
    exclude-result-prefixes="#all" version="2.0">
 
-   <xsl:output indent="1" omit-xml-declaration="1"/>
+   <xsl:output indent="yes" omit-xml-declaration="yes"/>
 
    <xsl:param name="source"/>
 
@@ -184,11 +184,12 @@
          <xsl:apply-templates select="(tei:publisher/tei:name | tei:publisher)[1]"/>
          <xsl:apply-templates select="tei:date"/>
       </marc:datafield>
-      <xsl:apply-templates select="tei:availability, tei:idno"/>
+      <xsl:apply-templates select="tei:availability, (tei:idno, /tei:TEI/@xml:id)[1]"/>
    </xsl:template>
    
-   <xsl:template match="tei:publicationStmt/tei:idno">
+   <xsl:template match="tei:publicationStmt/tei:idno | tei:TEI/@xml:id">
       <marc:datafield tag="856" ind1="4" ind2="0">
+         <!-- replace as needed -->
          <marc:subfield code="u">
             <xsl:text>https://purl.ulb.tu-darmstadt.de/v</xsl:text>
             <xsl:value-of select="substring(., 1, 1)" />
