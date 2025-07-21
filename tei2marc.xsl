@@ -66,6 +66,11 @@
                <xsl:apply-templates select="//tei:sourceDesc//tei:idno[@type = 'PPN']" />
             </marc:datafield>
          </xsl:if>
+         <xsl:if test="not(//tei:langUsage)">
+            <marc:datafield tag="041" ind1=" " inde2="7">
+               <marc:subfield code="a">und</marc:subfield>
+            </marc:datafield>
+         </xsl:if>
 
          <xsl:apply-templates/>
          <xsl:apply-templates select="../tei:profileDesc"/>
