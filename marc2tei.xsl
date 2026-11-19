@@ -2,8 +2,8 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:tei="http://www.tei-c.org/ns/1.0"
   xmlns:marc="http://www.loc.gov/MARC21/slim"
-	xmlns:xd="http://www.oxygenxml.com/ns/doc/xsl"
-	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:xd="http://www.oxygenxml.com/ns/doc/xsl"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns="http://www.tei-c.org/ns/1.0"
   exclude-result-prefixes="#all"
   version="3.0">
@@ -40,7 +40,7 @@
       <xd:p>Entry point for biblStruct.</xd:p>
     </xd:desc>
     <xd:param name="id">
-      <xd:p>If an @xml:id should be set, if can be provided with this param</xd:p>
+      <xd:p>If an @xml:id should be set, it can be provided with this param</xd:p>
     </xd:param>
   </xd:doc>
   <xsl:template match="marc:record" mode="biblStruct">
@@ -242,7 +242,7 @@
       <xd:p>Entry point for biblFull or fileDesc.</xd:p>
     </xd:desc>
     <xd:param name="id">
-      <xd:p>If an @xml:id should be set, if can be provided with this param</xd:p>
+      <xd:p>If an @xml:id should be set, it can be provided with this param</xd:p>
     </xd:param>
   </xd:doc>
   <xsl:template match="marc:record" mode="biblFull">
@@ -294,7 +294,7 @@
   </xsl:template>
   
   <xd:doc>
-    <xd:desc>Crete an idno from MARC 015 (number in national bilbiography)</xd:desc>
+    <xd:desc>Create an idno from MARC 015 (number in national bibliography)</xd:desc>
   </xd:doc>
   <xsl:template match="marc:datafield[@tag = '015']">
     <idno type="National-Bibliography" source="{marc:subfield[@code = '2']}">
@@ -303,7 +303,7 @@
   </xsl:template>
   
   <xd:doc>
-    <xd:desc>Crete an idno from MARC 016 (controlnumber in national library)</xd:desc>
+    <xd:desc>Create an idno from MARC 016 (controlnumber in national library)</xd:desc>
   </xd:doc>
   <xsl:template match="marc:datafield[@tag = '016']">
     <idno type="National-Bibliographic-Agency" source="info:isil/{marc:subfield[@code = '2']}">
@@ -826,7 +826,7 @@
   </xsl:template>
   
   <xd:doc>
-    <xd:desc>List for: Other Relationshio entry</xd:desc>
+    <xd:desc>List for: Other Relationship entry</xd:desc>
   </xd:doc>
   <xsl:template match="marc:datafield[@tag = '787']">
     <note type="other-relationship">
@@ -913,7 +913,7 @@
   </xd:doc>
   <xsl:template match="marc:datafield[@tag = '856']">
     <ref>
-      <xsl:apply-templates select="marc:subfield[@code = 'u'][1]" mode="attributeq">
+      <xsl:apply-templates select="marc:subfield[@code = 'u'][1]" mode="attribute">
         <xsl:with-param name="name">target</xsl:with-param>
       </xsl:apply-templates>
       <xsl:value-of select="marc:subfield[@code = '3']" />
@@ -962,7 +962,7 @@
     <xd:desc>
       <xd:p>Create respStmt from subfield with an optional resp</xd:p>
     </xd:desc>
-    <xd:param name="type"><xd:b>required:</xd:b> the type of name (e. g. per, org)</xd:param>
+    <xd:param name="type"><xd:b>required:</xd:b> the type of name (e.g. per, org)</xd:param>
     <xd:param name="resp"><xd:b>optional:</xd:b> content for an optional tei:resp</xd:param>
   </xd:doc>
   <xsl:template match="marc:subfield" mode="resp">
@@ -1066,7 +1066,7 @@
   <xd:doc>
     <xd:desc>
       <xd:p>Create a title from a subfield</xd:p>
-      <xd:p>As these usually are considered “title”-fields by the cataloguer, no specialised elemenrs are used.</xd:p>
+      <xd:p>As these usually are considered “title”-fields by the cataloguer, no specialized elements are used.</xd:p>
     </xd:desc>
   </xd:doc>
   <xsl:template match="marc:subfield" mode="title">
@@ -1079,7 +1079,7 @@
           <xsl:when test="@code = 'h'">medium</xsl:when>
           <xsl:when test="@code = 'n'">partNumber</xsl:when>
           <xsl:when test="@code = 'p'">partName</xsl:when>
-          <xsl:when test="@code = 'v'">sequencial</xsl:when>
+          <xsl:when test="@code = 'v'">sequential</xsl:when>
           <xsl:otherwise>
             <xsl:message terminate="yes" />
           </xsl:otherwise>
